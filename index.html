@@ -253,17 +253,16 @@
         .save-status.error { color: var(--wrong-red); }
 
         /* ===== 解锁管理弹窗 ===== */
-        .unlock-modal { background: linear-gradient(135deg, rgba(20,20,60,0.95), rgba(30,30,80,0.95)); border: 1px solid var(--glass-border); border-radius: 20px; padding: 25px; max-width: 520px; width: 92%; backdrop-filter: blur(20px); box-shadow: 0 16px 48px rgba(0,0,0,0.4); max-height: 85vh; overflow-y: auto; }
-        .unlock-modal h3 { font-size: 22px; color: var(--magic-gold); margin-bottom: 15px; text-align: center; }
+        .unlock-modal { background: linear-gradient(135deg, rgba(20,20,60,0.95), rgba(30,30,80,0.95)); border: 1px solid var(--glass-border); border-radius: 20px; padding: 20px; max-width: 400px; width: 90%; backdrop-filter: blur(20px); box-shadow: 0 16px 48px rgba(0,0,0,0.4); }
+        .unlock-modal h3 { font-size: 20px; color: var(--magic-gold); margin-bottom: 10px; text-align: center; }
         .unlock-input { width: 100%; padding: 10px 16px; border: 1px solid var(--glass-border); border-radius: 12px; background: rgba(0,0,0,0.3); color: var(--snow-white); font-family: 'ZCOOL KuaiLe', cursive; font-size: 16px; text-align: center; outline: none; }
         .unlock-input:focus { border-color: var(--magic-gold); }
-        .unlock-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 8px; margin: 15px 0; }
-        .unlock-cell { aspect-ratio: 1; border: 1px solid var(--glass-border); border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; background: var(--glass-bg); font-size: 14px; }
-        .unlock-cell:hover { border-color: var(--ice-blue); background: rgba(74,144,217,0.12); }
-        .unlock-cell.selected { border-color: var(--magic-gold); background: rgba(255,215,0,0.15); box-shadow: 0 0 10px rgba(255,215,0,0.2); }
-        .unlock-cell.already { opacity: 0.4; cursor: default; }
-        .unlock-cell.already:hover { border-color: var(--glass-border); background: var(--glass-bg); }
-        .unlock-chapter-label { font-size: 13px; color: var(--ice-blue); margin: 10px 0 5px; padding-bottom: 3px; border-bottom: 1px solid rgba(168,216,234,0.15); }
+        .unlock-chapter-row { display: flex; align-items: center; gap: 6px; margin: 8px 0; flex-wrap: wrap; }
+        .unlock-chapter-name { font-size: 12px; color: var(--ice-blue); min-width: 70px; flex-shrink: 0; }
+        .unlock-dot { width: 24px; height: 24px; border-radius: 50%; border: 1.5px solid var(--glass-border); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.15s; background: var(--glass-bg); font-size: 10px; color: var(--snow-white); flex-shrink: 0; }
+        .unlock-dot:hover { border-color: var(--ice-blue); }
+        .unlock-dot.selected { border-color: var(--magic-gold); background: rgba(255,215,0,0.25); color: var(--magic-gold); }
+        .unlock-dot.already { opacity: 0.3; cursor: default; border-color: var(--correct-green); }
 
         @media (max-width: 600px) {
             .welcome-title { font-size: 28px; } .question-math { font-size: 32px; }
@@ -1401,24 +1400,23 @@
         const container = document.getElementById('unlockGrid');
         if (!container) return;
         let html = '';
-        let currentChapter = 0;
-        ALL_LEVELS.forEach((level, i) => {
-            if (level.chapterId !== currentChapter) {
-                currentChapter = level.chapterId;
-                const ch = CHAPTERS.find(c => c.id === currentChapter);
-                html += `<div class="unlock-chapter-label">${ch.icon} ${ch.name}</div>`;
-            }
-            const isAlready = level.unlocked;
-            const isSelected = unlockSelected.has(i);
-            const cls = isAlready ? 'already' : (isSelected ? 'selected' : '');
-            const label = isAlready ? '✓' : level.id;
-            html += `<div class="unlock-cell ${cls}" data-idx="${i}" onclick="toggleUnlockCell(${i},this)">${label}</div>`;
+        CHAPTERS.forEach(ch => {
+            const levels = ALL_LEVELS.filter(l => l.chapterId === ch.id);
+            html += `<div class="unlock-chapter-row"><span class="unlock-chapter-name">${ch.icon}${ch.name}</span>`;
+            levels.forEach(level => {
+                const idx = ALL_LEVELS.indexOf(level);
+                const isAlready = level.unlocked;
+                const isSelected = unlockSelected.has(idx);
+                const cls = isAlready ? 'already' : (isSelected ? 'selected' : '');
+                html += `<span class="unlock-dot ${cls}" onclick="toggleUnlockCell(${idx},this)">${level.id}</span>`;
+            });
+            html += `</div>`;
         });
         container.innerHTML = html;
     }
 
     function toggleUnlockCell(idx, el) {
-        if (ALL_LEVELS[idx].unlocked) return; // 已解锁不可取消
+        if (ALL_LEVELS[idx].unlocked) return;
         sfxClick();
         if (unlockSelected.has(idx)) {
             unlockSelected.delete(idx);
