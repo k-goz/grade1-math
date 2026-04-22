@@ -252,6 +252,19 @@
         .save-status.success { color: var(--correct-green); }
         .save-status.error { color: var(--wrong-red); }
 
+        /* ===== 解锁管理弹窗 ===== */
+        .unlock-modal { background: linear-gradient(135deg, rgba(20,20,60,0.95), rgba(30,30,80,0.95)); border: 1px solid var(--glass-border); border-radius: 20px; padding: 25px; max-width: 520px; width: 92%; backdrop-filter: blur(20px); box-shadow: 0 16px 48px rgba(0,0,0,0.4); max-height: 85vh; overflow-y: auto; }
+        .unlock-modal h3 { font-size: 22px; color: var(--magic-gold); margin-bottom: 15px; text-align: center; }
+        .unlock-input { width: 100%; padding: 10px 16px; border: 1px solid var(--glass-border); border-radius: 12px; background: rgba(0,0,0,0.3); color: var(--snow-white); font-family: 'ZCOOL KuaiLe', cursive; font-size: 16px; text-align: center; outline: none; }
+        .unlock-input:focus { border-color: var(--magic-gold); }
+        .unlock-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 8px; margin: 15px 0; }
+        .unlock-cell { aspect-ratio: 1; border: 1px solid var(--glass-border); border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; background: var(--glass-bg); font-size: 14px; }
+        .unlock-cell:hover { border-color: var(--ice-blue); background: rgba(74,144,217,0.12); }
+        .unlock-cell.selected { border-color: var(--magic-gold); background: rgba(255,215,0,0.15); box-shadow: 0 0 10px rgba(255,215,0,0.2); }
+        .unlock-cell.already { opacity: 0.4; cursor: default; }
+        .unlock-cell.already:hover { border-color: var(--glass-border); background: var(--glass-bg); }
+        .unlock-chapter-label { font-size: 13px; color: var(--ice-blue); margin: 10px 0 5px; padding-bottom: 3px; border-bottom: 1px solid rgba(168,216,234,0.15); }
+
         @media (max-width: 600px) {
             .welcome-title { font-size: 28px; } .question-math { font-size: 32px; }
             .option-btn { font-size: 20px; padding: 12px; } .level-grid { grid-template-columns: repeat(auto-fill, minmax(65px, 1fr)); }
@@ -297,6 +310,7 @@
             <div style="text-align:center; margin-top:15px;">
                 <button class="ice-btn ice-btn-back" onclick="goWelcome()">← 返回</button>
                 <button class="ice-btn ice-btn-back" onclick="showSaveModal()">💾 存档管理</button>
+                <button class="ice-btn ice-btn-back" onclick="showUnlockModal()">🔓 解锁关卡</button>
             </div>
         </div>
 
@@ -1315,6 +1329,131 @@
             document.getElementById('saveStatus').className = 'save-status error';
             document.getElementById('saveStatus').textContent = '❌ 存档码无效，请检查是否完整复制';
         }
+    }
+
+    // ===== 解锁关卡弹窗 =====
+    const UNLOCK_PASSWORD = '天天向上';
+    let unlockSelected = new Set();
+
+    function showUnlockModal() {
+        sfxClick();
+        unlockSelected = new Set();
+        const overlay = document.createElement('div');
+        overlay.className = 'save-modal-overlay';
+        overlay.id = 'unlockModalOverlay';
+        overlay.innerHTML = `
+            <div class="unlock-modal">
+                <h3>🔓 关卡解锁</h3>
+                <p style="text-align:center;color:var(--ice-purple);font-size:14px;margin-bottom:12px;">输入密码后可选择要解锁的关卡</p>
+                <input type="text" class="unlock-input" id="unlockPassword" placeholder="请输入密码" maxlength="10">
+                <div id="unlockContent" style="display:none">
+                    <div style="display:flex;gap:8px;justify-content:center;margin:10px 0;flex-wrap:wrap;">
+                        <button class="save-modal-btn" onclick="unlockSelectAll()">全选</button>
+                        <button class="save-modal-btn" onclick="unlockSelectNone()">全不选</button>
+                    </div>
+                    <div id="unlockGrid"></div>
+                    <div class="save-modal-btns">
+                        <button class="save-modal-btn primary" onclick="doUnlock()">✅ 完成解锁</button>
+                        <button class="save-modal-btn" onclick="closeUnlockModal()">关闭</button>
+                    </div>
+                </div>
+                <div class="save-status" id="unlockStatus"></div>
+                <div class="save-modal-btns" id="unlockConfirmBtn">
+                    <button class="save-modal-btn primary" onclick="confirmUnlockPassword()">确认</button>
+                </div>
+            </div>
+        `;
+        overlay.onclick = (e) => { if (e.target === overlay) closeUnlockModal(); };
+        document.body.appendChild(overlay);
+        // 监听回车
+        document.getElementById('unlockPassword').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') confirmUnlockPassword();
+        });
+    }
+
+    function closeUnlockModal() {
+        const m = document.getElementById('unlockModalOverlay');
+        if (m) m.remove();
+    }
+
+    function confirmUnlockPassword() {
+        const input = document.getElementById('unlockPassword');
+        if (!input) return;
+        if (input.value === UNLOCK_PASSWORD) {
+            sfxCorrect();
+            input.disabled = true;
+            input.style.borderColor = 'var(--correct-green)';
+            document.getElementById('unlockConfirmBtn').style.display = 'none';
+            document.getElementById('unlockContent').style.display = 'block';
+            document.getElementById('unlockStatus').className = 'save-status success';
+            document.getElementById('unlockStatus').textContent = '✅ 密码正确！选择要解锁的关卡';
+            renderUnlockGrid();
+        } else {
+            sfxWrong();
+            document.getElementById('unlockStatus').className = 'save-status error';
+            document.getElementById('unlockStatus').textContent = '❌ 密码错误';
+            input.value = '';
+            input.focus();
+        }
+    }
+
+    function renderUnlockGrid() {
+        const container = document.getElementById('unlockGrid');
+        if (!container) return;
+        let html = '';
+        let currentChapter = 0;
+        ALL_LEVELS.forEach((level, i) => {
+            if (level.chapterId !== currentChapter) {
+                currentChapter = level.chapterId;
+                const ch = CHAPTERS.find(c => c.id === currentChapter);
+                html += `<div class="unlock-chapter-label">${ch.icon} ${ch.name}</div>`;
+            }
+            const isAlready = level.unlocked;
+            const isSelected = unlockSelected.has(i);
+            const cls = isAlready ? 'already' : (isSelected ? 'selected' : '');
+            const label = isAlready ? '✓' : level.id;
+            html += `<div class="unlock-cell ${cls}" data-idx="${i}" onclick="toggleUnlockCell(${i},this)">${label}</div>`;
+        });
+        container.innerHTML = html;
+    }
+
+    function toggleUnlockCell(idx, el) {
+        if (ALL_LEVELS[idx].unlocked) return; // 已解锁不可取消
+        sfxClick();
+        if (unlockSelected.has(idx)) {
+            unlockSelected.delete(idx);
+            el.classList.remove('selected');
+        } else {
+            unlockSelected.add(idx);
+            el.classList.add('selected');
+        }
+    }
+
+    function unlockSelectAll() {
+        sfxClick();
+        ALL_LEVELS.forEach((l, i) => { if (!l.unlocked) unlockSelected.add(i); });
+        renderUnlockGrid();
+    }
+
+    function unlockSelectNone() {
+        sfxClick();
+        unlockSelected.clear();
+        renderUnlockGrid();
+    }
+
+    function doUnlock() {
+        if (unlockSelected.size === 0) {
+            document.getElementById('unlockStatus').className = 'save-status error';
+            document.getElementById('unlockStatus').textContent = '请先选择要解锁的关卡';
+            return;
+        }
+        sfxUnlock();
+        unlockSelected.forEach(idx => { ALL_LEVELS[idx].unlocked = true; });
+        saveProgress();
+        const count = unlockSelected.size;
+        document.getElementById('unlockStatus').className = 'save-status success';
+        document.getElementById('unlockStatus').textContent = `✅ 已解锁 ${count} 个关卡！`;
+        setTimeout(() => { closeUnlockModal(); renderLevels(); }, 1200);
     }
 
     // ===== 工具 =====
