@@ -727,7 +727,8 @@
     function genShape(idx) {
         const shapes = ['rectangle','square','triangle','circle'];
         const shapeNames = { rectangle:'长方形', square:'正方形', triangle:'三角形', circle:'圆' };
-        const shapeEmojis = { rectangle:'🟦', square:'🟧', triangle:'🔺', circle:'🟢' };
+        const shapeEmojis = { rectangle:'RECT', square:'🟧', triangle:'🔺', circle:'🟢' };
+        const shapeHTML = { rectangle:'<span style="display:inline-block;width:60px;height:36px;border:3px solid #a8d8ea;border-radius:4px;background:rgba(74,144,217,0.15);vertical-align:middle"></span>', square:'<span style="font-size:50px">🟧</span>', triangle:'<span style="font-size:50px">🔺</span>', circle:'<span style="font-size:50px">🟢</span>' };
 
         if (idx % 3 === 0) {
             // 辨认图形
@@ -735,13 +736,13 @@
             const answer = shapeNames[correct];
             const wrongNames = Object.values(shapeNames).filter(n => n !== answer);
             const opts = [answer, ...shuffleArray(wrongNames).slice(0,3)];
-            return { type:'shape', text:`这是什么图形？`, math:shapeEmojis[correct], shapeEmoji:shapeEmojis[correct], answer, isShape:true, options:shuffleArray(opts) };
+            return { type:'shape', text:`这是什么图形？`, math:shapeEmojis[correct], shapeEmoji:shapeEmojis[correct], shapeHTML:shapeHTML[correct], answer, isShape:true, options:shuffleArray(opts) };
         } else if (idx % 3 === 1) {
             // 数图形
             const shape = shapes[randInt(0,3)];
             const count = randInt(2,5);
             const answer = count;
-            return { type:'shapeCount', text:`数一数，有几个${shapeNames[shape]}？`, math:shapeEmojis[shape].repeat(count), shapeEmoji:shapeEmojis[shape], shapeCount:count, answer, isShapeCount:true, options:genOptions(answer, 10) };
+            return { type:'shapeCount', text:`数一数，有几个${shapeNames[shape]}？`, math:shapeEmojis[shape].repeat(count), shapeEmoji:shapeEmojis[shape], shapeHTML:shapeHTML[shape], shapeCount:count, answer, isShapeCount:true, options:genOptions(answer, 10) };
         } else {
             // 图形拼组
             const a = randInt(2,4), b = randInt(1,3);
@@ -938,8 +939,12 @@
             mathEl.innerHTML = `<span>${q.a}</span> <span class="blank"></span> <span>${q.b}</span>`;
         } else if (q.isPattern || q.isPatternShape) {
             mathEl.innerHTML = q.math;
-        } else if (q.isShape || q.isShapeCount) {
-            mathEl.innerHTML = `<span style="font-size:50px;letter-spacing:8px">${q.math}</span>`;
+        } else if (q.isShape) {
+            mathEl.innerHTML = `<span style="font-size:50px;letter-spacing:8px">${q.shapeHTML || q.math}</span>`;
+        } else if (q.isShapeCount) {
+            // 数图形：重复显示图形
+            const html = q.shapeHTML ? (q.shapeHTML + ' ').repeat(q.shapeCount) : q.math;
+            mathEl.innerHTML = `<span style="font-size:50px;letter-spacing:8px">${html}</span>`;
         } else if (q.isClassify) {
             mathEl.innerHTML = `<span style="font-size:30px;letter-spacing:4px">${q.math}</span>`;
         } else {
