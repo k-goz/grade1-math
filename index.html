@@ -716,24 +716,55 @@
         }
     }
 
-    // --- 20以内加法 ---
+    // --- 20以内加法（融入凑十法原理） ---
     function genAddition(maxNum, idx, diff) {
         let a, b;
         if (diff <= 1) { a = randInt(1,9); b = randInt(1,9); }
         else if (diff <= 2) { a = randInt(5,15); b = randInt(2, Math.max(2,maxNum-a)); }
         else { a = randInt(8,Math.min(18,maxNum-3)); b = randInt(3, Math.max(3,maxNum-a)); }
         const answer = a + b;
+
+        // 凑十法：当进位加法时（a的个位+b>10），把b拆成(10-a的个位)和剩余
+        const aOnes = a % 10;
+        const needToTen = 10 - aOnes; // 凑到10还需要多少
+        if (aOnes > 0 && b > needToTen && aOnes + b >= 10 && answer <= 20) {
+            const couShiRemain = b - needToTen; // 凑十后剩余
+            const couShiHint = `凑十法：把${b}拆成${needToTen}和${couShiRemain}，${a}+${needToTen}=10，10+${couShiRemain}=${answer}`;
+            if (idx % 3 === 0) {
+                return { type:'addition', text:`用凑十法算：${a} + ${b} = ？\n提示：把${b}拆成${needToTen}和${couShiRemain}`, math:`${a} + ${b} = ?`, a, b, answer, operator:'+', visualType:'addition', visualItems:getVisualItems('addition'), options:genOptions(answer, maxNum), methodHint:couShiHint };
+            }
+        }
+
         return { type:'addition', text:`艾莎有 ${a} 个冰晶，安娜又给了她 ${b} 个，一共有几个？`, math:`${a} + ${b} = ?`, a, b, answer, operator:'+', visualType:'addition', visualItems:getVisualItems('addition'), options:genOptions(answer, maxNum) };
     }
 
-    // --- 20以内退位减法 ---
+    // --- 20以内退位减法（融入破十法原理） ---
     function genSubtraction20(idx, diff) {
         let a, b;
         if (diff <= 1) { a = randInt(11,18); b = 9; } // 十几减9
-        else if (diff <= 2) { a = randInt(13,17); b = randInt(8, Math.min(9, a-3)); } // 十几减8/7，确保a-b>=3
-        else { a = randInt(14,20); b = randInt(2, a-3); } // 确保结果>=3
+        else if (diff <= 2) { a = randInt(13,17); b = randInt(8, Math.min(9, a-3)); } // 十几减8/7
+        else { a = randInt(14,20); b = randInt(2, a-3); }
         const answer = a - b;
-        return { type:'subtraction', text:`艾莎做了 ${a} 个雪人，太阳融化了 ${b} 个，还剩几个？`, math:`${a} - ${b} = ?`, a, b, answer, operator:'-', visualType:'subtraction', visualItems:getVisualItems('subtraction'), options:genOptions(answer, 20) };
+
+        // 破十法原理：a - b = (10-b) + (a-10)
+        // 例如 13-9：先从10里减9得1，再加上个位的3，得4
+        const poShiBreak = 10 - b;   // 从10里减去b
+        const poShiRemain = a - 10;  // a的个位
+        const poShiHint = `破十法：先算10-${b}=${poShiBreak}，再算${poShiBreak}+${poShiRemain}=${answer}`;
+
+        // 想加算减原理：因为 b+answer=a，所以 a-b=answer
+        const xiangJiaHint = `想加算减：因为${b}+${answer}=${a}，所以${a}-${b}=${answer}`;
+
+        // 交替出原理题和普通题
+        if (idx % 4 === 0) {
+            // 破十法原理题
+            return { type:'subtraction', text:`用破十法算：${a} - ${b} = ？\n提示：先把${a}拆成10和${poShiRemain}`, math:`${a} - ${b} = ?`, a, b, answer, operator:'-', visualType:'subtraction', visualItems:getVisualItems('subtraction'), options:genOptions(answer, 20), methodHint:poShiHint };
+        } else if (idx % 4 === 2) {
+            // 想加算减原理题
+            return { type:'subtraction', text:`想加算减：${a} - ${b} = ？\n提示：想想${b}加几等于${a}`, math:`${a} - ${b} = ?`, a, b, answer, operator:'-', visualType:'subtraction', visualItems:getVisualItems('subtraction'), options:genOptions(answer, 20), methodHint:xiangJiaHint };
+        } else {
+            return { type:'subtraction', text:`艾莎做了 ${a} 个雪人，太阳融化了 ${b} 个，还剩几个？`, math:`${a} - ${b} = ?`, a, b, answer, operator:'-', visualType:'subtraction', visualItems:getVisualItems('subtraction'), options:genOptions(answer, 20) };
+        }
     }
 
     // --- 认识图形 ---
@@ -831,22 +862,22 @@
             // 元角换算
             const yuan = randInt(1,5);
             const answer = yuan * 10;
-            return { type:'addition', text:`${yuan}元等于多少角？`, math:`${yuan}元 = ?角`, a:yuan, b:10, answer, operator:'×', visualType:'addition', visualItems:['💰'], options:genOptions(answer, 50) };
+            return { type:'money', subType:'yuanJiao', text:`${yuan}元等于多少角？`, math:`${yuan}元 = ?角`, yuan, answer, isMoney:true, options:genOptions(answer, 50) };
         } else if (idx < 4) {
             // 角分换算
             const jiao = randInt(1,5);
             const answer = jiao * 10;
-            return { type:'addition', text:`${jiao}角等于多少分？`, math:`${jiao}角 = ?分`, a:jiao, b:10, answer, operator:'×', visualType:'addition', visualItems:['🪙'], options:genOptions(answer, 50) };
+            return { type:'money', subType:'jiaoFen', text:`${jiao}角等于多少分？`, math:`${jiao}角 = ?分`, jiao, answer, isMoney:true, options:genOptions(answer, 50) };
         } else if (idx < 6) {
             // 简单购物加法
             const a = randInt(1,8), b = randInt(1, Math.min(8, 10-a));
             const answer = a + b;
-            return { type:'addition', text:`艾莎买了一块冰砖${a}元，又买了一杯热可可${b}元，一共花了多少元？`, math:`${a} + ${b} = ?元`, a, b, answer, operator:'+', visualType:'addition', visualItems:['💰','🪙'], options:genOptions(answer, 20) };
+            return { type:'money', subType:'shopping', text:`艾莎买了一块冰砖${a}元，又买了一杯热可可${b}元，一共花了多少元？`, math:`${a}元 + ${b}元 = ?元`, a, b, answer, isMoney:true, options:genOptions(answer, 20) };
         } else {
             // 找钱
             const price = randInt(2,8), pay = randInt(price+1, 10);
             const answer = pay - price;
-            return { type:'subtraction', text:`冰雕${price}元，艾莎付了${pay}元，应找回多少元？`, math:`${pay} - ${price} = ?元`, a:pay, b:price, answer, operator:'-', visualType:'subtraction', visualItems:['💰'], options:genOptions(answer, 10) };
+            return { type:'money', subType:'change', text:`冰雕${price}元，艾莎付了${pay}元，应找回多少元？`, math:`${pay}元 - ${price}元 = ?元`, price, pay, answer, isMoney:true, options:genOptions(answer, 10) };
         }
     }
 
@@ -960,6 +991,14 @@
             mathEl.innerHTML = `<span style="font-size:50px;letter-spacing:8px">${html}</span>`;
         } else if (q.isClassify) {
             mathEl.innerHTML = `<span style="font-size:30px;letter-spacing:4px">${q.math}</span>`;
+        } else if (q.isMoney) {
+            // 人民币表达式：直接显示，?处用blank样式
+            const parts = q.math.replace('?','◆SPLIT◆').split('◆SPLIT◆');
+            if (parts.length === 2) {
+                mathEl.innerHTML = `<span>${parts[0]}</span><span class="blank"></span><span>${parts[1]}</span>`;
+            } else {
+                mathEl.innerHTML = q.math;
+            }
         } else {
             const parts = q.math.split(/([+\-=?×])/);
             mathEl.innerHTML = parts.map(p => {
@@ -1003,6 +1042,8 @@
             for (let i=0; i<Math.min(q.b,10); i++) { const s = document.createElement('span'); s.className='visual-item'; s.textContent=q.visualItems[(i+3)%q.visualItems.length]; right.appendChild(s); }
             if (q.b>10) { const m = document.createElement('span'); m.className='visual-item'; m.textContent=`...${q.b}`; m.style.fontSize='14px'; right.appendChild(m); }
             area.appendChild(right);
+        } else if (q.isMoney) {
+            renderMoneyVisual(q, area);
         }
 
         // 数字线（不预高亮，答对后逐步高亮）
@@ -1015,6 +1056,88 @@
             }
             area.appendChild(nl);
         }
+    }
+
+    // 人民币专属视觉：大中小硬币区分元角分
+    function renderMoneyVisual(q, area) {
+        const row = document.createElement('div');
+        row.style.cssText = 'display:flex;gap:8px;justify-content:center;align-items:flex-end;flex-wrap:wrap;';
+
+        if (q.subType === 'yuanJiao') {
+            // 显示yuan个1元硬币
+            for (let i = 0; i < q.yuan; i++) {
+                const coin = document.createElement('span');
+                coin.className = 'visual-item';
+                coin.style.cssText = 'font-size:40px;animation-delay:' + (i*0.05) + 's';
+                coin.textContent = '🪙';
+                coin.title = '1元';
+                row.appendChild(coin);
+            }
+            // 提示：1元=10角
+            const hint = document.createElement('span');
+            hint.style.cssText = 'font-size:14px;color:var(--ice-blue);margin-left:10px;align-self:center;';
+            hint.textContent = '1元 = 10角';
+            row.appendChild(hint);
+        } else if (q.subType === 'jiaoFen') {
+            // 显示jiao个1角硬币（中等大小）
+            for (let i = 0; i < q.jiao; i++) {
+                const coin = document.createElement('span');
+                coin.className = 'visual-item';
+                coin.style.cssText = 'font-size:30px;animation-delay:' + (i*0.05) + 's';
+                coin.textContent = '🪙';
+                coin.title = '1角';
+                row.appendChild(coin);
+            }
+            const hint = document.createElement('span');
+            hint.style.cssText = 'font-size:14px;color:var(--ice-blue);margin-left:10px;align-self:center;';
+            hint.textContent = '1角 = 10分';
+            row.appendChild(hint);
+        } else if (q.subType === 'shopping') {
+            // 左边a元，右边b元
+            const left = document.createElement('div');
+            left.style.cssText = 'display:flex;gap:4px;flex-wrap:wrap;justify-content:center;';
+            for (let i = 0; i < q.a; i++) {
+                const coin = document.createElement('span');
+                coin.className = 'visual-item';
+                coin.style.cssText = 'font-size:40px;animation-delay:' + (i*0.05) + 's';
+                coin.textContent = '🪙';
+                left.appendChild(coin);
+            }
+            area.appendChild(left);
+            const op = document.createElement('span');
+            op.className = 'visual-operator';
+            op.textContent = '+';
+            area.appendChild(op);
+            const right = document.createElement('div');
+            right.style.cssText = 'display:flex;gap:4px;flex-wrap:wrap;justify-content:center;';
+            for (let i = 0; i < q.b; i++) {
+                const coin = document.createElement('span');
+                coin.className = 'visual-item';
+                coin.style.cssText = 'font-size:30px;animation-delay:' + (i*0.05) + 's';
+                coin.textContent = '🪙';
+                right.appendChild(coin);
+            }
+            area.appendChild(right);
+            return; // shopping用两行布局，直接return
+        } else if (q.subType === 'change') {
+            // 付了pay元，商品price元
+            const payRow = document.createElement('div');
+            payRow.style.cssText = 'display:flex;gap:4px;flex-wrap:wrap;justify-content:center;';
+            for (let i = 0; i < q.pay; i++) {
+                const coin = document.createElement('span');
+                coin.className = 'visual-item';
+                coin.style.cssText = 'font-size:40px;animation-delay:' + (i*0.05) + 's';
+                coin.textContent = '🪙';
+                payRow.appendChild(coin);
+            }
+            area.appendChild(payRow);
+            const hint = document.createElement('div');
+            hint.style.cssText = 'font-size:14px;color:var(--ice-pink);margin:5px 0;';
+            hint.textContent = `付了${q.pay}元，商品${q.price}元`;
+            area.appendChild(hint);
+            return;
+        }
+        area.appendChild(row);
     }
 
     function renderOptions(q) {
@@ -1097,7 +1220,12 @@
         if (gameState.combo >= 3) { sfxCombo(); showCombo(gameState.combo); }
 
         const enc = ENCOURAGES.correct[randInt(0,ENCOURAGES.correct.length-1)];
-        document.getElementById('feedbackArea').innerHTML = `<div class="feedback-correct">✨ ${enc}</div>${bonus>0?`<div class="feedback-encourage">连击奖励 +${bonus}分！</div>`:''}`;
+        let feedbackHtml = `<div class="feedback-correct">✨ ${enc}</div>${bonus>0?`<div class="feedback-encourage">连击奖励 +${bonus}分！</div>`:''}`;
+        // 显示方法原理提示
+        if (q.methodHint) {
+            feedbackHtml += `<div class="feedback-encourage" style="margin-top:6px;color:var(--magic-gold);font-size:13px;">💡 ${q.methodHint}</div>`;
+        }
+        document.getElementById('feedbackArea').innerHTML = feedbackHtml;
 
         createMagicEffect();
 
@@ -1153,7 +1281,12 @@
     }
 
     function speakResult(q) {
-        if (q.type==='addition') speak(`${q.a} 加 ${q.b} 等于 ${q.answer}`);
+        if (q.isMoney) {
+            if (q.subType === 'yuanJiao') speak(`${q.yuan}元等于${q.answer}角，1元等于10角`);
+            else if (q.subType === 'jiaoFen') speak(`${q.jiao}角等于${q.answer}分，1角等于10分`);
+            else if (q.subType === 'shopping') speak(`${q.a}元加${q.b}元等于${q.answer}元`);
+            else if (q.subType === 'change') speak(`找零${q.pay}减${q.price}等于${q.answer}元`);
+        } else if (q.type==='addition') speak(`${q.a} 加 ${q.b} 等于 ${q.answer}`);
         else if (q.type==='subtraction') speak(`${q.a} 减 ${q.b} 等于 ${q.answer}`);
         else if (q.isCompare) speak(`${q.a} ${q.answer==='>'?'大于':q.answer==='<'?'小于':'等于'} ${q.b}`);
     }
@@ -1164,7 +1297,11 @@
         const hearts = document.querySelectorAll('.heart:not(.lost)');
         if (hearts.length>0) { const last=hearts[hearts.length-1]; last.classList.add('breaking'); setTimeout(()=>{last.classList.add('lost');last.classList.remove('breaking');},500); }
         const enc = ENCOURAGES.wrong[randInt(0,ENCOURAGES.wrong.length-1)];
-        document.getElementById('feedbackArea').innerHTML = `<div class="feedback-wrong">答案是 ${q.answer}，${enc}</div>`;
+        let wrongHtml = `<div class="feedback-wrong">答案是 ${q.answer}，${enc}</div>`;
+        if (q.methodHint) {
+            wrongHtml += `<div class="feedback-encourage" style="margin-top:4px;color:var(--magic-gold);font-size:13px;">💡 ${q.methodHint}</div>`;
+        }
+        document.getElementById('feedbackArea').innerHTML = wrongHtml;
     }
 
     function nextQuestion() {
