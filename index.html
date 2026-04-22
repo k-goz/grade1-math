@@ -1,0 +1,1322 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>艾莎的冰雪数学王国 ❄️</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --ice-blue: #a8d8ea; --ice-purple: #b8a9c9; --ice-pink: #f0c0d0;
+            --elsa-blue: #4a90d9; --snow-white: #f0f8ff; --magic-gold: #ffd700;
+            --correct-green: #4caf50; --wrong-red: #f44336;
+            --frost-glow: rgba(168, 216, 234, 0.15);
+            --ice-border: rgba(168, 216, 234, 0.25);
+            --glass-bg: rgba(255, 255, 255, 0.06);
+            --glass-border: rgba(255, 255, 255, 0.12);
+        }
+
+        body {
+            font-family: 'ZCOOL KuaiLe', cursive, sans-serif;
+            background: #0a0a2e;
+            min-height: 100vh; overflow-x: hidden; color: var(--snow-white);
+        }
+
+        /* ===== 多层冰雪背景 ===== */
+        .bg-layer {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 0;
+        }
+        .bg-aurora {
+            background:
+                radial-gradient(ellipse 80% 50% at 20% 20%, rgba(74, 144, 217, 0.15) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 40% at 80% 30%, rgba(123, 104, 238, 0.12) 0%, transparent 50%),
+                radial-gradient(ellipse 70% 60% at 50% 80%, rgba(168, 216, 234, 0.08) 0%, transparent 50%),
+                linear-gradient(180deg, #0a0a2e 0%, #12124e 25%, #1a1a5e 50%, #0e0e3e 100%);
+            animation: auroraShift 20s ease-in-out infinite alternate;
+        }
+        @keyframes auroraShift {
+            0% { filter: hue-rotate(0deg) brightness(1); }
+            50% { filter: hue-rotate(10deg) brightness(1.05); }
+            100% { filter: hue-rotate(-5deg) brightness(0.95); }
+        }
+        .bg-mountains {
+            background:
+                linear-gradient(165deg, transparent 40%, rgba(20, 30, 60, 0.6) 40.5%, rgba(15, 20, 50, 0.4) 100%),
+                linear-gradient(195deg, transparent 45%, rgba(25, 35, 70, 0.5) 45.5%, rgba(10, 15, 40, 0.3) 100%);
+        }
+        .bg-stars {
+            background-image:
+                radial-gradient(1px 1px at 10% 15%, rgba(255,255,255,0.5) 0%, transparent 100%),
+                radial-gradient(1px 1px at 25% 35%, rgba(255,255,255,0.3) 0%, transparent 100%),
+                radial-gradient(1.5px 1.5px at 40% 10%, rgba(255,255,255,0.6) 0%, transparent 100%),
+                radial-gradient(1px 1px at 55% 45%, rgba(255,255,255,0.3) 0%, transparent 100%),
+                radial-gradient(1px 1px at 70% 20%, rgba(255,255,255,0.4) 0%, transparent 100%),
+                radial-gradient(1.5px 1.5px at 85% 40%, rgba(255,255,255,0.5) 0%, transparent 100%),
+                radial-gradient(1px 1px at 15% 60%, rgba(255,255,255,0.3) 0%, transparent 100%),
+                radial-gradient(1px 1px at 60% 70%, rgba(255,255,255,0.4) 0%, transparent 100%),
+                radial-gradient(1px 1px at 90% 55%, rgba(255,255,255,0.3) 0%, transparent 100%),
+                radial-gradient(1.5px 1.5px at 35% 80%, rgba(255,255,255,0.5) 0%, transparent 100%);
+            animation: twinkle 4s ease-in-out infinite alternate;
+        }
+        @keyframes twinkle { 0% { opacity: 0.6; } 100% { opacity: 1; } }
+
+        .snowflakes { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; overflow: hidden; }
+        .snowflake { position: absolute; top: -10px; color: white; font-size: 1em; opacity: 0.7; animation: snowfall linear infinite; filter: drop-shadow(0 0 3px rgba(168,216,234,0.4)); }
+        @keyframes snowfall { 0% { transform: translateY(-10px) rotate(0deg) translateX(0); opacity: 0.7; } 50% { transform: translateY(50vh) rotate(180deg) translateX(20px); } 100% { transform: translateY(100vh) rotate(360deg) translateX(-10px); opacity: 0.15; } }
+
+        .game-container { position: relative; z-index: 2; max-width: 900px; margin: 0 auto; padding: 20px; min-height: 100vh; }
+
+        /* ===== 欢迎页面 ===== */
+        .welcome-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 90vh; text-align: center; animation: fadeIn 1s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .elsa-castle { font-size: 120px; margin-bottom: 10px; animation: float 3s ease-in-out infinite; filter: drop-shadow(0 0 30px rgba(168,216,234,0.6)) drop-shadow(0 0 60px rgba(74,144,217,0.3)); }
+        @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+        .welcome-title { font-size: 42px; background: linear-gradient(90deg, #a8d8ea, #f0c0d0, #b8a9c9, #a8d8ea); background-size: 300% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: shimmer 3s linear infinite; margin-bottom: 15px; }
+        @keyframes shimmer { 0% { background-position: 0% 50%; } 100% { background-position: 300% 50%; } }
+        .welcome-subtitle { font-size: 20px; color: var(--ice-blue); margin-bottom: 40px; line-height: 1.6; }
+        .welcome-elsa { font-size: 80px; margin-bottom: 20px; animation: magicPulse 2s ease-in-out infinite; }
+        @keyframes magicPulse { 0%,100% { transform: scale(1); filter: drop-shadow(0 0 10px rgba(168,216,234,0.3)); } 50% { transform: scale(1.05); filter: drop-shadow(0 0 25px rgba(168,216,234,0.8)); } }
+        .name-input-area { margin-bottom: 30px; }
+        .name-input-area label { font-size: 20px; color: var(--ice-pink); display: block; margin-bottom: 10px; }
+        .name-input { width: 220px; padding: 12px 20px; border: 1px solid var(--glass-border); border-radius: 25px; background: var(--glass-bg); color: var(--snow-white); font-size: 18px; font-family: 'ZCOOL KuaiLe', cursive; text-align: center; outline: none; backdrop-filter: blur(12px); box-shadow: 0 2px 10px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.06); }
+        .name-input::placeholder { color: rgba(255,255,255,0.4); }
+        .name-input:focus { border-color: var(--ice-pink); box-shadow: 0 0 15px rgba(240,192,208,0.3); }
+
+        /* ===== 按钮 ===== */
+        .ice-btn { padding: 15px 40px; border: none; border-radius: 30px; font-size: 22px; font-family: 'ZCOOL KuaiLe', cursive; cursor: pointer; position: relative; overflow: hidden; transition: all 0.3s ease; margin: 8px; }
+        .ice-btn-primary { background: linear-gradient(135deg, #4a90d9, #7b68ee); color: white; box-shadow: 0 4px 20px rgba(74,144,217,0.4), inset 0 1px 0 rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.15); }
+        .ice-btn-primary:hover { transform: translateY(-3px); box-shadow: 0 8px 30px rgba(74,144,217,0.5), inset 0 1px 0 rgba(255,255,255,0.3); }
+        .ice-btn-primary:active { transform: translateY(0); }
+        .ice-btn-sparkle::after { content: '✨'; position: absolute; right: 10px; top: 50%; transform: translateY(-50%); font-size: 18px; }
+        .ice-btn-back { background: var(--glass-bg); color: var(--ice-blue); border: 1px solid var(--ice-border); padding: 10px 25px; font-size: 16px; backdrop-filter: blur(8px); }
+        .ice-btn-back:hover { background: rgba(255,255,255,0.12); border-color: var(--ice-blue); }
+
+        /* ===== 关卡选择 ===== */
+        .level-screen { display: none; animation: fadeIn 0.5s ease; }
+        .level-header { text-align: center; margin-bottom: 20px; }
+        .level-header h2 { font-size: 28px; color: var(--ice-blue); margin-bottom: 5px; }
+        .level-header p { color: var(--ice-purple); font-size: 16px; }
+
+        .chapter-tabs { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 20px; }
+        .chapter-tab { padding: 8px 16px; border-radius: 20px; border: 1px solid var(--glass-border); background: var(--glass-bg); color: var(--ice-blue); font-family: 'ZCOOL KuaiLe', cursive; font-size: 14px; cursor: pointer; transition: all 0.2s; backdrop-filter: blur(6px); }
+        .chapter-tab:hover { background: rgba(74,144,217,0.15); border-color: rgba(74,144,217,0.3); }
+        .chapter-tab.active { background: rgba(74,144,217,0.2); border-color: var(--ice-blue); color: white; box-shadow: 0 0 12px rgba(74,144,217,0.2); }
+
+        .level-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 10px; margin-bottom: 20px; }
+        .level-cell { aspect-ratio: 1; border: 1px solid var(--glass-border); border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: all 0.25s ease; background: var(--glass-bg); position: relative; backdrop-filter: blur(6px); }
+        .level-cell:hover { border-color: var(--ice-blue); background: rgba(74,144,217,0.12); transform: scale(1.08); box-shadow: 0 0 20px rgba(74,144,217,0.15); }
+        .level-cell.locked { opacity: 0.35; cursor: not-allowed; }
+        .level-cell.locked:hover { transform: none; background: rgba(255,255,255,0.05); border-color: rgba(168,216,234,0.2); }
+        .level-cell-num { font-size: 18px; color: var(--snow-white); }
+        .level-cell-stars { font-size: 10px; color: #555; letter-spacing: 1px; margin-top: 2px; }
+        .level-cell-stars .earned { color: var(--magic-gold); }
+        .level-cell .lock-icon { font-size: 20px; opacity: 0.5; }
+
+        .level-overview { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 10px 15px; background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 12px; backdrop-filter: blur(8px); }
+        .level-overview-text { font-size: 14px; color: var(--ice-purple); }
+        .level-overview-progress { font-size: 14px; color: var(--ice-blue); }
+
+        /* ===== 游戏页面 ===== */
+        .game-screen { display: none; animation: fadeIn 0.5s ease; }
+        .game-top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 12px 18px; background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 15px; backdrop-filter: blur(16px); flex-wrap: wrap; gap: 8px; box-shadow: 0 4px 16px rgba(0,0,0,0.15); }
+        .game-info { display: flex; align-items: center; gap: 6px; font-size: 16px; }
+        .game-info .icon { font-size: 20px; }
+        .hearts { display: flex; gap: 4px; }
+        .heart { font-size: 22px; transition: all 0.3s; }
+        .heart.lost { opacity: 0.2; transform: scale(0.8); }
+        .heart.breaking { animation: heartBreak 0.5s ease; }
+        @keyframes heartBreak { 0% { transform: scale(1); } 25% { transform: scale(1.3); color: var(--wrong-red); } 100% { transform: scale(0.8); opacity: 0.2; } }
+
+        .question-area { background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(168,216,234,0.06) 100%); border: 1px solid var(--glass-border); border-radius: 25px; padding: 25px; margin-bottom: 20px; text-align: center; backdrop-filter: blur(16px); position: relative; box-shadow: 0 8px 32px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.08); }
+        .question-elsa { font-size: 50px; margin-bottom: 10px; display: inline-block; }
+        .question-text { font-size: 17px; color: var(--ice-pink); margin-bottom: 15px; line-height: 1.6; }
+        .question-math { font-size: 44px; color: var(--snow-white); margin: 15px 0; text-shadow: 0 0 20px rgba(168,216,234,0.3); letter-spacing: 4px; }
+        .question-math .operator { color: var(--ice-pink); }
+        .question-math .blank { display: inline-block; width: 70px; height: 50px; border: 3px dashed var(--ice-blue); border-radius: 12px; vertical-align: middle; margin: 0 4px; background: rgba(74,144,217,0.1); animation: blink 1.5s ease-in-out infinite; }
+        @keyframes blink { 0%,100% { border-color: var(--ice-blue); } 50% { border-color: var(--ice-pink); } }
+
+        .visual-area { margin: 15px 0; min-height: 50px; display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 6px; }
+        .visual-item { font-size: 26px; display: inline-block; animation: popIn 0.3s ease backwards; }
+        .visual-item.crossed { opacity: 0.3; text-decoration: line-through; transform: scale(0.8); }
+        @keyframes popIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .visual-group { display: flex; flex-wrap: wrap; gap: 4px; padding: 8px; border-radius: 12px; justify-content: center; }
+        .visual-group-left { background: rgba(74,144,217,0.15); border: 1px dashed rgba(74,144,217,0.4); }
+        .visual-group-right { background: rgba(240,192,208,0.15); border: 1px dashed rgba(240,192,208,0.4); }
+        .visual-operator { font-size: 26px; color: var(--magic-gold); align-self: center; padding: 0 8px; }
+
+        /* ===== 数字线（答对后逐步高亮） ===== */
+        .number-line { display: flex; justify-content: center; gap: 3px; margin: 12px 0; flex-wrap: wrap; }
+        .number-line-item { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; border: 2px solid rgba(168,216,234,0.2); background: rgba(255,255,255,0.03); transition: all 0.4s ease; }
+        .number-line-item.step-highlight { border-color: var(--ice-blue); background: rgba(74,144,217,0.4); color: white; transform: scale(1.15); box-shadow: 0 0 10px rgba(74,144,217,0.5); }
+        .number-line-item.start-highlight { border-color: var(--magic-gold); background: rgba(255,215,0,0.3); color: white; transform: scale(1.15); box-shadow: 0 0 10px rgba(255,215,0,0.5); }
+        .number-line-item.end-highlight { border-color: var(--ice-pink); background: rgba(240,192,208,0.4); color: white; transform: scale(1.15); box-shadow: 0 0 10px rgba(240,192,208,0.5); }
+
+        /* ===== 选项 ===== */
+        .options-area { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 15px; }
+        .option-btn { padding: 16px; border: 1px solid var(--glass-border); border-radius: 18px; background: var(--glass-bg); color: var(--snow-white); font-size: 26px; font-family: 'ZCOOL KuaiLe', cursive; cursor: pointer; transition: all 0.2s ease; backdrop-filter: blur(8px); box-shadow: 0 2px 8px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.06); }
+        .option-btn:hover { border-color: var(--ice-blue); background: rgba(74,144,217,0.15); transform: scale(1.05); box-shadow: 0 4px 16px rgba(74,144,217,0.2), inset 0 1px 0 rgba(255,255,255,0.1); }
+        .option-btn:active { transform: scale(0.95); }
+        .option-btn.correct { border-color: var(--correct-green); background: rgba(76,175,80,0.3); animation: correctPulse 0.5s ease; }
+        @keyframes correctPulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+        .option-btn.wrong { border-color: var(--wrong-red); background: rgba(244,67,54,0.3); animation: shake 0.5s ease; }
+        @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
+        .option-btn.disabled { pointer-events: none; opacity: 0.5; }
+
+        .compare-btns { display: flex; justify-content: center; gap: 20px; margin-bottom: 15px; }
+        .compare-btn { width: 80px; height: 80px; border: 3px solid rgba(168,216,234,0.3); border-radius: 50%; background: rgba(255,255,255,0.08); color: var(--snow-white); font-size: 36px; font-family: 'ZCOOL KuaiLe', cursive; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; }
+        .compare-btn:hover { border-color: var(--ice-blue); background: rgba(74,144,217,0.2); transform: scale(1.1); }
+        .compare-btn.correct { border-color: var(--correct-green); background: rgba(76,175,80,0.3); }
+        .compare-btn.wrong { border-color: var(--wrong-red); background: rgba(244,67,54,0.3); animation: shake 0.5s ease; }
+        .compare-btn.disabled { pointer-events: none; opacity: 0.5; }
+
+        .feedback-area { text-align: center; min-height: 60px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .feedback-correct { font-size: 22px; color: var(--correct-green); animation: feedbackPop 0.5s ease; }
+        .feedback-wrong { font-size: 18px; color: var(--wrong-red); animation: feedbackPop 0.5s ease; }
+        @keyframes feedbackPop { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .feedback-encourage { font-size: 14px; color: var(--ice-blue); margin-top: 4px; }
+
+        .sparkle { position: absolute; font-size: 20px; animation: sparkleAnim 1s ease forwards; pointer-events: none; }
+        @keyframes sparkleAnim { 0% { transform: scale(0) rotate(0deg); opacity: 1; } 50% { transform: scale(1.5) rotate(180deg); opacity: 0.8; } 100% { transform: scale(0) rotate(360deg); opacity: 0; } }
+
+        /* ===== 结算 ===== */
+        .result-screen { display: none; text-align: center; animation: fadeIn 0.5s ease; }
+        .result-elsa { font-size: 90px; margin-bottom: 15px; }
+        .result-title { font-size: 32px; margin-bottom: 8px; }
+        .result-subtitle { font-size: 17px; color: var(--ice-blue); margin-bottom: 25px; }
+        .result-stars { font-size: 45px; margin-bottom: 20px; letter-spacing: 8px; }
+        .result-stats { display: flex; justify-content: center; gap: 20px; margin-bottom: 25px; flex-wrap: wrap; }
+        .stat-item { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 15px; padding: 12px 20px; min-width: 100px; backdrop-filter: blur(8px); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .stat-value { font-size: 28px; color: var(--ice-blue); }
+        .stat-label { font-size: 13px; color: var(--ice-purple); }
+        .result-buttons { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+
+        .achievement-popup { position: fixed; top: 20px; right: 20px; background: linear-gradient(135deg, rgba(74,144,217,0.85), rgba(123,104,238,0.85)); border: 1px solid rgba(255,255,255,0.15); border-radius: 15px; padding: 15px 25px; z-index: 200; animation: slideInRight 0.5s ease, slideOutRight 0.5s ease 2.5s forwards; backdrop-filter: blur(20px); box-shadow: 0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1); }
+        @keyframes slideInRight { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes slideOutRight { from { transform: translateX(0); opacity: 1; } to { transform: translateX(120%); opacity: 0; } }
+        .achievement-icon { font-size: 28px; float: left; margin-right: 10px; }
+        .achievement-text { font-size: 13px; line-height: 1.4; }
+        .achievement-name { font-size: 15px; color: var(--magic-gold); }
+
+        .progress-bar-container { width: 100%; height: 4px; background: rgba(255,255,255,0.06); border-radius: 2px; margin-top: 10px; overflow: hidden; }
+        .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--ice-blue), var(--ice-pink), var(--magic-gold)); border-radius: 2px; transition: width 0.5s ease; box-shadow: 0 0 8px rgba(168,216,234,0.4); }
+
+        .combo-display { position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%); font-size: 50px; color: var(--magic-gold); text-shadow: 0 0 30px rgba(255,215,0,0.5); pointer-events: none; z-index: 150; animation: comboAnim 1s ease forwards; }
+        @keyframes comboAnim { 0% { transform: translate(-50%,-50%) scale(0); opacity: 0; } 30% { transform: translate(-50%,-50%) scale(1.5); opacity: 1; } 100% { transform: translate(-50%,-80%) scale(1); opacity: 0; } }
+
+        /* ===== 音乐播放器 ===== */
+        .music-player { position: fixed; bottom: 20px; right: 20px; z-index: 100; }
+        .music-btn { width: 50px; height: 50px; border-radius: 50%; border: 2px solid var(--ice-blue); background: rgba(74,144,217,0.3); color: white; font-size: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s; backdrop-filter: blur(10px); }
+        .music-btn:hover { background: rgba(74,144,217,0.5); transform: scale(1.1); }
+        .music-btn.playing { animation: musicPulse 1s ease-in-out infinite; border-color: var(--magic-gold); }
+        @keyframes musicPulse { 0%,100% { box-shadow: 0 0 5px rgba(255,215,0,0.3); } 50% { box-shadow: 0 0 20px rgba(255,215,0,0.6); } }
+
+        /* ===== 图形题 ===== */
+        .shape-area { display: flex; justify-content: center; gap: 15px; margin: 15px 0; flex-wrap: wrap; }
+        .shape-item { width: 70px; height: 70px; border: 3px solid rgba(168,216,234,0.4); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 40px; cursor: pointer; transition: all 0.2s; background: rgba(255,255,255,0.05); }
+        .shape-item:hover { border-color: var(--ice-blue); background: rgba(74,144,217,0.15); transform: scale(1.05); }
+        .shape-item.selected { border-color: var(--magic-gold); background: rgba(255,215,0,0.15); }
+        .shape-item.correct { border-color: var(--correct-green); background: rgba(76,175,80,0.2); }
+        .shape-item.wrong { border-color: var(--wrong-red); background: rgba(244,67,54,0.2); }
+
+        /* ===== 分类题 ===== */
+        .classify-area { display: flex; gap: 20px; justify-content: center; margin: 15px 0; flex-wrap: wrap; }
+        .classify-group { min-width: 120px; min-height: 100px; border: 2px dashed rgba(168,216,234,0.3); border-radius: 15px; padding: 10px; text-align: center; }
+        .classify-group-title { font-size: 14px; color: var(--ice-blue); margin-bottom: 8px; }
+        .classify-items { display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; min-height: 50px; }
+
+        /* ===== 人民币题 ===== */
+        .money-display { display: flex; justify-content: center; gap: 10px; margin: 10px 0; flex-wrap: wrap; }
+        .money-bill { font-size: 36px; animation: popIn 0.3s ease backwards; }
+
+        /* ===== 规律题 ===== */
+        .pattern-area { display: flex; justify-content: center; gap: 8px; margin: 15px 0; align-items: center; flex-wrap: wrap; }
+        .pattern-item { font-size: 30px; padding: 5px 10px; border-radius: 8px; background: rgba(255,255,255,0.05); }
+        .pattern-blank { font-size: 30px; padding: 5px 10px; border: 2px dashed var(--ice-blue); border-radius: 8px; min-width: 50px; text-align: center; }
+
+        /* ===== 存档管理弹窗 ===== */
+        .save-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 300; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+        .save-modal { background: linear-gradient(135deg, rgba(20,20,60,0.95), rgba(30,30,80,0.95)); border: 1px solid var(--glass-border); border-radius: 20px; padding: 25px; max-width: 420px; width: 90%; backdrop-filter: blur(20px); box-shadow: 0 16px 48px rgba(0,0,0,0.4); }
+        .save-modal h3 { font-size: 22px; color: var(--ice-blue); margin-bottom: 15px; text-align: center; }
+        .save-modal p { font-size: 14px; color: var(--ice-purple); margin-bottom: 12px; line-height: 1.5; }
+        .save-code-area { width: 100%; height: 80px; background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); border-radius: 10px; color: var(--ice-blue); font-family: monospace; font-size: 11px; padding: 10px; resize: none; outline: none; }
+        .save-code-area:focus { border-color: var(--ice-blue); }
+        .save-modal-btns { display: flex; gap: 10px; margin-top: 15px; justify-content: center; flex-wrap: wrap; }
+        .save-modal-btn { padding: 8px 20px; border-radius: 20px; border: 1px solid var(--glass-border); background: var(--glass-bg); color: var(--snow-white); font-family: 'ZCOOL KuaiLe', cursive; font-size: 15px; cursor: pointer; transition: all 0.2s; }
+        .save-modal-btn:hover { background: rgba(74,144,217,0.2); border-color: var(--ice-blue); }
+        .save-modal-btn.primary { background: linear-gradient(135deg, #4a90d9, #7b68ee); border: none; }
+        .save-status { font-size: 14px; text-align: center; margin-top: 8px; min-height: 20px; }
+        .save-status.success { color: var(--correct-green); }
+        .save-status.error { color: var(--wrong-red); }
+
+        @media (max-width: 600px) {
+            .welcome-title { font-size: 28px; } .question-math { font-size: 32px; }
+            .option-btn { font-size: 20px; padding: 12px; } .level-grid { grid-template-columns: repeat(auto-fill, minmax(65px, 1fr)); }
+            .elsa-castle { font-size: 80px; } .game-top-bar { flex-wrap: wrap; gap: 8px; }
+            .chapter-tabs { gap: 5px; } .chapter-tab { font-size: 12px; padding: 6px 10px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- 多层冰雪背景 -->
+    <div class="bg-layer bg-aurora"></div>
+    <div class="bg-layer bg-mountains"></div>
+    <div class="bg-layer bg-stars"></div>
+    <div class="snowflakes" id="snowflakes"></div>
+
+    <div class="game-container">
+        <!-- 欢迎页面 -->
+        <div class="welcome-screen" id="welcomeScreen">
+            <div class="elsa-castle">🏰</div>
+            <h1 class="welcome-title">艾莎的冰雪数学王国</h1>
+            <div class="welcome-elsa">👸❄️</div>
+            <p class="welcome-subtitle">
+                欢迎来到阿伦戴尔王国！<br>
+                艾莎公主需要你的数学魔法来守护冰雪王国！<br>
+                100个关卡，陪你度过整个学期 ✨
+            </p>
+            <div class="name-input-area">
+                <label>小魔法师，你叫什么名字？</label>
+                <input type="text" class="name-input" id="playerName" placeholder="输入你的名字" maxlength="10">
+            </div>
+            <button class="ice-btn ice-btn-primary ice-btn-sparkle" onclick="startGame()">开始冰雪之旅</button>
+        </div>
+
+        <!-- 关卡选择 -->
+        <div class="level-screen" id="levelScreen">
+            <div class="level-header">
+                <h2>❄️ 冰雪数学之旅 ❄️</h2>
+                <p id="levelGreeting">选择你要挑战的关卡吧！</p>
+            </div>
+            <div class="chapter-tabs" id="chapterTabs"></div>
+            <div class="level-overview" id="levelOverview"></div>
+            <div class="level-grid" id="levelGrid"></div>
+            <div style="text-align:center; margin-top:15px;">
+                <button class="ice-btn ice-btn-back" onclick="goWelcome()">← 返回</button>
+                <button class="ice-btn ice-btn-back" onclick="showSaveModal()">💾 存档管理</button>
+            </div>
+        </div>
+
+        <!-- 游戏页面 -->
+        <div class="game-screen" id="gameScreen">
+            <div class="game-top-bar">
+                <div class="game-info"><span class="icon">❄️</span><span id="currentLevelName">关卡</span></div>
+                <div class="game-info"><span class="icon">⭐</span><span id="scoreDisplay">0</span></div>
+                <div class="game-info"><span class="icon">📝</span><span id="questionProgress">1/8</span></div>
+                <div class="hearts" id="heartsDisplay"></div>
+            </div>
+            <div class="progress-bar-container"><div class="progress-bar-fill" id="gameProgressBar" style="width:0%"></div></div>
+            <div class="question-area" id="questionArea">
+                <div class="question-elsa" id="questionElsa">👸</div>
+                <div class="question-text" id="questionText"></div>
+                <div class="question-math" id="questionMath"></div>
+                <div class="visual-area" id="visualArea"></div>
+            </div>
+            <div class="options-area" id="optionsArea"></div>
+            <div class="compare-btns" id="compareBtns" style="display:none"></div>
+            <div class="feedback-area" id="feedbackArea"></div>
+        </div>
+
+        <!-- 结算 -->
+        <div class="result-screen" id="resultScreen">
+            <div class="result-elsa" id="resultElsa">👸</div>
+            <h2 class="result-title" id="resultTitle"></h2>
+            <p class="result-subtitle" id="resultSubtitle"></p>
+            <div class="result-stars" id="resultStars"></div>
+            <div class="result-stats" id="resultStats"></div>
+            <div class="result-buttons">
+                <button class="ice-btn ice-btn-primary" onclick="replayLevel()">再挑战一次</button>
+                <button class="ice-btn ice-btn-back" onclick="goLevels()">选择其他关卡</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 音乐播放器 -->
+    <div class="music-player" id="musicPlayer" style="display:none">
+        <button class="music-btn" id="musicBtn" onclick="toggleMusic()" title="艾莎的音乐">🎵</button>
+    </div>
+
+    <script>
+    // ===== 章节定义（人教版一年级下册7个单元） =====
+    const CHAPTERS = [
+        { id: 1, name: '认识图形', icon: '🔷', desc: '长方形、正方形、三角形、圆', levels: 3, type: 'shape' },
+        { id: 2, name: '20以内退位减法', icon: '💧', desc: '十几减9、减8...破十法、想加算减', levels: 20, type: 'subtraction20' },
+        { id: 3, name: '分类与整理', icon: '📊', desc: '按不同标准分类整理', levels: 5, type: 'classify' },
+        { id: 4, name: '100以内数的认识', icon: '💯', desc: '数数、读写、组成、比大小', levels: 25, type: 'number100' },
+        { id: 5, name: '认识人民币', icon: '💰', desc: '元角分、换算、简单计算', levels: 8, type: 'money' },
+        { id: 6, name: '100以内加减法', icon: '🏰', desc: '整十数加减、两位数加减一位数', levels: 34, type: 'addsub100' },
+        { id: 7, name: '找规律', icon: '🔮', desc: '图形和数字的排列规律', levels: 5, type: 'pattern' }
+    ];
+
+    // 生成95个关卡
+    const ALL_LEVELS = [];
+    let levelId = 0;
+    CHAPTERS.forEach(ch => {
+        for (let i = 0; i < ch.levels; i++) {
+            levelId++;
+            ALL_LEVELS.push({
+                id: levelId,
+                chapterId: ch.id,
+                chapterName: ch.name,
+                name: `第${levelId}关`,
+                icon: ch.icon,
+                desc: `${ch.name} · 第${i+1}关`,
+                type: ch.type,
+                subIndex: i,
+                stars: 0,
+                unlocked: levelId === 1,
+                questions: 8
+            });
+        }
+    });
+
+    const ENCOURAGES = {
+        correct: ['太棒了！冰雪魔法更强大了！','艾莎为你骄傲！','哇，你真是个数学小天才！','阿伦戴尔因你而闪耀！','冰雪女王批准！','魔法成功释放！','雪宝说：好厉害！','斯特说：干得好！'],
+        wrong: ['没关系，再想想看~','艾莎相信你可以的！','冰雪魔法需要多练习~','别灰心，雪宝也经常摔倒！','再试一次，你一定行！','安娜姐姐也经常算错呢~']
+    };
+    const VISUAL_ITEMS = { addition: ['❄️','💎','✨','🌟','⭐'], subtraction: ['⛄','❄️','🌨️','💧','🧊'], compare: ['💎','❄️','⭐','✨','🌟'], makeTen: ['⛄','👸','❄️','💎','✨'], default: ['❄️','⭐','💎','✨','🌟'] };
+
+    // ===== 音效系统 =====
+    let audioCtx = null;
+    function getAudioCtx() {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        return audioCtx;
+    }
+
+    function playTone(freq, duration, type='sine', vol=0.15) {
+        try {
+            const ctx = getAudioCtx();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = type;
+            osc.frequency.value = freq;
+            gain.gain.setValueAtTime(vol, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(ctx.currentTime);
+            osc.stop(ctx.currentTime + duration);
+        } catch(e) {}
+    }
+
+    function sfxClick() { playTone(800, 0.08, 'sine', 0.1); }
+    function sfxCorrect() { playTone(523, 0.12, 'sine', 0.12); setTimeout(() => playTone(659, 0.12, 'sine', 0.12), 100); setTimeout(() => playTone(784, 0.2, 'sine', 0.12), 200); }
+    function sfxWrong() { playTone(200, 0.3, 'sawtooth', 0.08); }
+    function sfxCombo() { playTone(880, 0.1, 'sine', 0.1); setTimeout(() => playTone(1047, 0.1, 'sine', 0.1), 80); setTimeout(() => playTone(1319, 0.15, 'sine', 0.1), 160); }
+    function sfxStar() { playTone(1047, 0.15, 'sine', 0.1); setTimeout(() => playTone(1319, 0.15, 'sine', 0.1), 120); setTimeout(() => playTone(1568, 0.2, 'sine', 0.1), 240); }
+    function sfxUnlock() { [523,659,784,1047].forEach((f,i) => setTimeout(() => playTone(f, 0.2, 'sine', 0.1), i*120)); }
+    function sfxVictory() {
+        // "Let It Go" 开头旋律近似 (E-F-G-G-G-F-E-F)
+        const melody = [659,698,784,784,784,698,659,698,784,880,784,698,659];
+        melody.forEach((f,i) => setTimeout(() => playTone(f, 0.25, 'sine', 0.12), i*200));
+    }
+
+    // ===== 语音播报 =====
+    function speak(text) {
+        try {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const u = new SpeechSynthesisUtterance(text);
+                u.lang = 'zh-CN';
+                u.rate = 0.85;
+                u.pitch = 1.2;
+                u.volume = 0.8;
+                window.speechSynthesis.speak(u);
+            }
+        } catch(e) {}
+    }
+
+    // ===== 艾莎音乐（Web Audio API 合成简化版"Let It Go"旋律） =====
+    let elsaMusicPlaying = false;
+    let elsaMusicTimeout = null;
+
+    function playElsaMusic() {
+        if (elsaMusicPlaying) return;
+        elsaMusicPlaying = true;
+        document.getElementById('musicBtn')?.classList.add('playing');
+
+        // "Let It Go" 副歌部分简化旋律 (E major)
+        const melody = [
+            // "Let it go, let it go"
+            [659,400],[659,400],[784,600],[659,200],[698,400],[659,400],
+            // "Can't hold it back anymore"
+            [587,400],[587,400],[659,600],[587,200],[523,400],[587,400],
+            // "Let it go, let it go"
+            [659,400],[659,400],[784,600],[880,200],[784,400],[659,400],
+            // "Turn away and slam the door"
+            [587,400],[587,400],[659,400],[523,400],[587,800],
+            // "I don't care what they're going to say"
+            [659,300],[698,300],[784,300],[880,300],[784,300],[659,300],[698,300],[659,300],
+            // "Let the storm rage on"
+            [587,400],[523,400],[587,400],[659,800],
+            // "The cold never bothered me anyway"
+            [523,300],[587,300],[659,300],[523,300],[587,600],[440,600]
+        ];
+
+        let time = 0;
+        melody.forEach(([freq, dur]) => {
+            setTimeout(() => {
+                if (!elsaMusicPlaying) return;
+                playTone(freq, dur/1000 * 0.9, 'sine', 0.08);
+                // 加泛音让声音更丰富
+                playTone(freq * 2, dur/1000 * 0.9, 'sine', 0.02);
+                playTone(freq * 3, dur/1000 * 0.9, 'sine', 0.01);
+            }, time);
+            time += dur;
+        });
+
+        // 循环播放
+        elsaMusicTimeout = setTimeout(() => {
+            if (elsaMusicPlaying) { elsaMusicPlaying = false; playElsaMusic(); }
+        }, time + 500);
+    }
+
+    function stopElsaMusic() {
+        elsaMusicPlaying = false;
+        if (elsaMusicTimeout) clearTimeout(elsaMusicTimeout);
+        document.getElementById('musicBtn')?.classList.remove('playing');
+    }
+
+    function toggleMusic() {
+        if (elsaMusicPlaying) stopElsaMusic(); else playElsaMusic();
+    }
+
+    // ===== 游戏状态 =====
+    let gameState = { playerName:'小魔法师', currentLevel:null, currentQuestion:0, totalQuestions:8, score:0, correctCount:0, combo:0, maxCombo:0, hearts:3, maxHearts:3, questions:[], answered:false, currentChapter:1 };
+    let selectedChapter = 0; // 0 = 全部
+
+    // ===== 初始化 =====
+    function init() { createSnowflakes(); loadProgress(); restorePlayerName(); }
+
+    function restorePlayerName() {
+        if (gameState.playerName && gameState.playerName !== '小魔法师') {
+            const input = document.getElementById('playerName');
+            if (input) input.value = gameState.playerName;
+        }
+    }
+
+    function createSnowflakes() {
+        const c = document.getElementById('snowflakes');
+        const flakes = ['❄','❅','❆','✦','✧','·'];
+        for (let i = 0; i < 40; i++) {
+            const f = document.createElement('div');
+            f.className = 'snowflake';
+            f.textContent = flakes[Math.floor(Math.random()*flakes.length)];
+            f.style.left = Math.random()*100+'%';
+            const size = Math.random()*1.5+0.3;
+            f.style.fontSize = size+'em';
+            f.style.animationDuration = (Math.random()*8+4)+'s';
+            f.style.animationDelay = (Math.random()*12)+'s';
+            f.style.opacity = Math.random()*0.5+0.15;
+            c.appendChild(f);
+        }
+    }
+
+    // ===== 版本化存档系统 =====
+    const SAVE_VERSION = 3; // 每次代码结构变更时递增此版本号
+    const SAVE_KEY = 'elsaMathV3';
+
+    function loadProgress() {
+        // 1. 尝试加载当前版本
+        const saved = localStorage.getItem(SAVE_KEY);
+        if (saved) {
+            try {
+                const data = JSON.parse(saved);
+                if (data.version === SAVE_VERSION && data.levels) {
+                    data.levels.forEach((d,i) => {
+                        if (ALL_LEVELS[i]) {
+                            ALL_LEVELS[i].stars = d.stars || 0;
+                            ALL_LEVELS[i].unlocked = d.unlocked || false;
+                        }
+                    });
+                    if (data.playerName) gameState.playerName = data.playerName;
+                }
+            } catch(e) { console.warn('存档解析失败，尝试迁移旧数据'); }
+        }
+
+        // 2. 如果当前版本没数据，尝试迁移旧版本
+        if (!localStorage.getItem(SAVE_KEY)) {
+            migrateOldData();
+        }
+
+        // 3. 确保第一关始终解锁
+        ALL_LEVELS[0].unlocked = true;
+    }
+
+    // 迁移旧版本数据（按关卡类型+子索引匹配，而非绝对索引）
+    function migrateOldData() {
+        const oldKeys = ['elsaMathProgress2', 'elsaMathProgress'];
+        for (const key of oldKeys) {
+            const raw = localStorage.getItem(key);
+            if (!raw) continue;
+            try {
+                const oldData = JSON.parse(raw);
+                if (!Array.isArray(oldData)) continue;
+
+                // 按章节类型+子索引匹配迁移
+                let migrated = 0;
+                oldData.forEach((d, i) => {
+                    // 在新关卡列表中找到对应位置
+                    // 策略：旧数据第i项 → 新关卡中同chapterType+同subIndex的关卡
+                    if (i < ALL_LEVELS.length) {
+                        // 简单策略：如果新关卡数量 >= 旧数据长度，直接按索引迁移
+                        if (d.stars > 0) { ALL_LEVELS[i].stars = d.stars; migrated++; }
+                        if (d.unlocked) { ALL_LEVELS[i].unlocked = true; migrated++; }
+                    }
+                });
+
+                if (migrated > 0) {
+                    console.log(`从 ${key} 迁移了 ${migrated} 条数据`);
+                    saveProgress(); // 保存为新版本格式
+                    // 不删除旧数据，保留备份
+                }
+                break; // 找到一个旧版本就够
+            } catch(e) { continue; }
+        }
+    }
+
+    function saveProgress() {
+        const data = {
+            version: SAVE_VERSION,
+            timestamp: Date.now(),
+            playerName: gameState.playerName,
+            // 保存每关的章节类型+子索引，方便未来迁移时匹配
+            levels: ALL_LEVELS.map(l => ({
+                stars: l.stars,
+                unlocked: l.unlocked,
+                chapterType: l.type,
+                subIndex: l.subIndex
+            }))
+        };
+        localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+    }
+
+    // ===== 存档导出/导入 =====
+    function exportSave() {
+        saveProgress();
+        const data = localStorage.getItem(SAVE_KEY);
+        if (!data) return '';
+        // 用 base64 编码，方便复制
+        const encoded = btoa(unescape(encodeURIComponent(data)));
+        // 加上校验头
+        return 'ELSA3:' + encoded;
+    }
+
+    function importSave(code) {
+        if (!code.startsWith('ELSA3:')) return false;
+        try {
+            const encoded = code.slice(6);
+            const json = decodeURIComponent(escape(atob(encoded)));
+            const data = JSON.parse(json);
+            if (data.version && data.levels) {
+                localStorage.setItem(SAVE_KEY, json);
+                loadProgress();
+                return true;
+            }
+        } catch(e) {}
+        return false;
+    }
+
+    // ===== 页面切换 =====
+    function showScreen(id) { ['welcomeScreen','levelScreen','gameScreen','resultScreen'].forEach(s => document.getElementById(s).style.display='none'); document.getElementById(id).style.display = id==='welcomeScreen'?'flex':'block'; }
+    function startGame() { gameState.playerName = document.getElementById('playerName').value.trim()||'小魔法师'; saveProgress(); goLevels(); sfxClick(); }
+    function goWelcome() { showScreen('welcomeScreen'); stopElsaMusic(); document.getElementById('musicPlayer').style.display='none'; }
+    function goLevels() { showScreen('levelScreen'); renderLevels(); stopElsaMusic(); document.getElementById('musicPlayer').style.display='none'; }
+
+    // ===== 关卡渲染 =====
+    function renderLevels() {
+        document.getElementById('levelGreeting').textContent = `${gameState.playerName}，选择你要挑战的关卡吧！`;
+
+        // 章节标签
+        const tabs = document.getElementById('chapterTabs');
+        tabs.innerHTML = `<button class="chapter-tab ${selectedChapter===0?'active':''}" onclick="selectChapter(0)">全部</button>`;
+        CHAPTERS.forEach((ch,i) => {
+            tabs.innerHTML += `<button class="chapter-tab ${selectedChapter===i+1?'active':''}" onclick="selectChapter(${i+1})">${ch.icon} ${ch.name}</button>`;
+        });
+
+        // 概览
+        const totalStars = ALL_LEVELS.reduce((s,l) => s+l.stars, 0);
+        const maxStars = ALL_LEVELS.length * 3;
+        const unlocked = ALL_LEVELS.filter(l => l.unlocked).length;
+        document.getElementById('levelOverview').innerHTML = `
+            <span class="level-overview-text">已解锁 ${unlocked}/${ALL_LEVELS.length} 关</span>
+            <span class="level-overview-progress">⭐ ${totalStars}/${maxStars}</span>
+        `;
+
+        // 关卡格子
+        const grid = document.getElementById('levelGrid');
+        grid.innerHTML = '';
+        const filtered = selectedChapter === 0 ? ALL_LEVELS : ALL_LEVELS.filter(l => l.chapterId === selectedChapter);
+        filtered.forEach(level => {
+            const idx = ALL_LEVELS.indexOf(level);
+            const cell = document.createElement('div');
+            cell.className = 'level-cell' + (level.unlocked ? '' : ' locked');
+            if (level.unlocked) {
+                cell.innerHTML = `<span class="level-cell-num">${level.id}</span><span class="level-cell-stars">${[1,2,3].map(s=>`<span class="${s<=level.stars?'earned':''}">★</span>`).join('')}</span>`;
+                cell.onclick = () => { sfxClick(); startLevel(idx); };
+            } else {
+                cell.innerHTML = `<span class="lock-icon">🔒</span>`;
+            }
+            grid.appendChild(cell);
+        });
+    }
+
+    function selectChapter(ch) { selectedChapter = ch; renderLevels(); sfxClick(); }
+
+    // ===== 开始关卡 =====
+    function startLevel(levelIndex) {
+        const level = ALL_LEVELS[levelIndex];
+        gameState.currentLevel = levelIndex;
+        gameState.currentQuestion = 0;
+        gameState.totalQuestions = level.questions;
+        gameState.score = 0; gameState.correctCount = 0;
+        gameState.combo = 0; gameState.maxCombo = 0;
+        gameState.hearts = gameState.maxHearts;
+        gameState.answered = false;
+        gameState.questions = generateQuestions(level);
+        showScreen('gameScreen');
+        document.getElementById('currentLevelName').textContent = `${level.icon} ${level.name}`;
+        renderQuestion();
+    }
+
+    // ===== 题目生成 =====
+    function generateQuestions(level) {
+        const qs = [];
+        for (let i = 0; i < level.questions; i++) qs.push(generateOne(level, i));
+        return qs;
+    }
+
+    function generateOne(level, idx) {
+        const diff = Math.min(Math.floor(level.subIndex / 3) + Math.floor(idx / 3), 4); // 0-4难度
+        switch(level.type) {
+            case 'shape': return genShape(idx);
+            case 'subtraction20': return genSubtraction20(idx, diff);
+            case 'classify': return genClassify(idx);
+            case 'number100': return genNumber100(idx, diff);
+            case 'money': return genMoney(idx, diff);
+            case 'addsub100': return genAddSub100(idx, diff);
+            case 'pattern': return genPattern(idx, diff);
+            default: return genAddition(20, idx, diff);
+        }
+    }
+
+    // --- 20以内加法 ---
+    function genAddition(maxNum, idx, diff) {
+        let a, b;
+        if (diff <= 1) { a = randInt(1,9); b = randInt(1,9); }
+        else if (diff <= 2) { a = randInt(5,15); b = randInt(2, Math.max(2,maxNum-a)); }
+        else { a = randInt(8,Math.min(18,maxNum-3)); b = randInt(3, Math.max(3,maxNum-a)); }
+        const answer = a + b;
+        return { type:'addition', text:`艾莎有 ${a} 个冰晶，安娜又给了她 ${b} 个，一共有几个？`, math:`${a} + ${b} = ?`, a, b, answer, operator:'+', visualType:'addition', visualItems:getVisualItems('addition'), options:genOptions(answer, maxNum) };
+    }
+
+    // --- 20以内退位减法 ---
+    function genSubtraction20(idx, diff) {
+        let a, b;
+        if (diff <= 1) { a = randInt(11,18); b = 9; } // 十几减9
+        else if (diff <= 2) { a = randInt(13,17); b = randInt(8, Math.min(9, a-3)); } // 十几减8/7，确保a-b>=3
+        else { a = randInt(14,20); b = randInt(2, a-3); } // 确保结果>=3
+        const answer = a - b;
+        return { type:'subtraction', text:`艾莎做了 ${a} 个雪人，太阳融化了 ${b} 个，还剩几个？`, math:`${a} - ${b} = ?`, a, b, answer, operator:'-', visualType:'subtraction', visualItems:getVisualItems('subtraction'), options:genOptions(answer, 20) };
+    }
+
+    // --- 认识图形 ---
+    function genShape(idx) {
+        const shapes = ['rectangle','square','triangle','circle'];
+        const shapeNames = { rectangle:'长方形', square:'正方形', triangle:'三角形', circle:'圆' };
+        const shapeEmojis = { rectangle:'🟦', square:'🟧', triangle:'🔺', circle:'🟢' };
+
+        if (idx % 3 === 0) {
+            // 辨认图形
+            const correct = shapes[randInt(0,3)];
+            const answer = shapeNames[correct];
+            const wrongNames = Object.values(shapeNames).filter(n => n !== answer);
+            const opts = [answer, ...shuffleArray(wrongNames).slice(0,3)];
+            return { type:'shape', text:`这是什么图形？`, math:shapeEmojis[correct], shapeEmoji:shapeEmojis[correct], answer, isShape:true, options:shuffleArray(opts) };
+        } else if (idx % 3 === 1) {
+            // 数图形
+            const shape = shapes[randInt(0,3)];
+            const count = randInt(2,5);
+            const answer = count;
+            return { type:'shapeCount', text:`数一数，有几个${shapeNames[shape]}？`, math:shapeEmojis[shape].repeat(count), shapeEmoji:shapeEmojis[shape], shapeCount:count, answer, isShapeCount:true, options:genOptions(answer, 10) };
+        } else {
+            // 图形拼组
+            const a = randInt(2,4), b = randInt(1,3);
+            const answer = a + b;
+            return { type:'addition', text:`用 ${a} 个三角形和 ${b} 个正方形拼图案，一共用了几个图形？`, math:`${a} + ${b} = ?`, a, b, answer, operator:'+', visualType:'addition', visualItems:['🔺','🟧'], options:genOptions(answer, 10) };
+        }
+    }
+
+    // --- 分类与整理 ---
+    function genClassify(idx) {
+        if (idx < 2) {
+            // 按形状分类计数
+            const items = shuffleArray(['❄️','❄️','💎','💎','💎','⭐','⭐','⭐','⭐']);
+            const counts = {};
+            items.forEach(i => counts[i] = (counts[i]||0) + 1);
+            const target = Object.keys(counts)[randInt(0, Object.keys(counts).length-1)];
+            const answer = counts[target];
+            return { type:'classify', text:`这些物品中，${target}有几个？`, math:items.join(' '), classifyItems:items, answer, isClassify:true, options:genOptions(answer, 10) };
+        } else if (idx < 4) {
+            // 按颜色分类
+            const blues = randInt(2,5), pinks = randInt(2,5);
+            const answer = blues + pinks;
+            return { type:'addition', text:`有 ${blues} 个蓝色冰晶和 ${pinks} 个粉色冰晶，一共有几个？`, math:`${blues} + ${pinks} = ?`, a:blues, b:pinks, answer, operator:'+', visualType:'addition', visualItems:['💎','✨'], options:genOptions(answer, 12) };
+        } else {
+            // 比多少
+            const a = randInt(3,8), b = randInt(3,8);
+            const answer = a > b ? '多' : a < b ? '少' : '一样';
+            return { type:'compareMore', text:`❄️有${a}个，💎有${b}个，❄️比💎`, math:`${a} ○ ${b}`, a, b, answer, isCompareMore:true, options:shuffleArray(['多','少','一样']) };
+        }
+    }
+
+    // --- 100以内数的认识 ---
+    function genNumber100(idx, diff) {
+        const subType = idx % 5;
+        if (subType === 0) {
+            // 数数
+            const start = randInt(1,80);
+            const step = [1,2,5,10][randInt(0, Math.min(3, diff))];
+            const a = start, b = step;
+            const answer = a + b;
+            return { type:'addition', text:`从${a}开始，${step===1?'1个1个数':step===2?'2个2个数':step===5?'5个5个数':'10个10个数'}，下一个数是几？`, math:`${a} + ${step} = ?`, a, b, answer, operator:'+', visualType:'addition', visualItems:getVisualItems('default'), options:genOptions(answer, 100) };
+        } else if (subType === 1) {
+            // 数的组成
+            const tens = randInt(1,9), ones = randInt(0,9);
+            const answer = tens * 10 + ones;
+            return { type:'addition', text:`${tens}个十和${ones}个一组成几？`, math:`${tens*10} + ${ones} = ?`, a:tens*10, b:ones, answer, operator:'+', visualType:'addition', visualItems:getVisualItems('default'), options:genOptions(answer, 100) };
+        } else if (subType === 2) {
+            // 比大小
+            let a, b;
+            if (diff <= 1) { a = randInt(1,20); b = randInt(1,20); }
+            else if (diff <= 2) { a = randInt(20,50); b = randInt(20,50); }
+            else { a = randInt(50,99); b = randInt(50,99); }
+            if (a === b) b = a + randInt(1,5);
+            const answer = a > b ? '>' : '<';
+            return { type:'compare', text:'比较大小，选择正确的符号：', math:`${a} ○ ${b}`, a, b, answer, visualType:'compare', visualItems:getVisualItems('compare'), isCompare:true };
+        } else if (subType === 3) {
+            // 整十数加一位数
+            const a = randInt(1,9) * 10, b = randInt(1,9);
+            const answer = a + b;
+            return { type:'addition', text:`${a} 加上 ${b} 等于几？`, math:`${a} + ${b} = ?`, a, b, answer, operator:'+', visualType:'addition', visualItems:getVisualItems('default'), options:genOptions(answer, 100) };
+        } else {
+            // 相应减法
+            const ones = randInt(1,9), tens = randInt(1,9);
+            const a = tens * 10 + ones, b = ones;
+            const answer = a - b;
+            return { type:'subtraction', text:`${a} 减去 ${b} 等于几？`, math:`${a} - ${b} = ?`, a, b, answer, operator:'-', visualType:'subtraction', visualItems:getVisualItems('subtraction'), options:genOptions(answer, 100) };
+        }
+    }
+
+    // --- 认识人民币 ---
+    function genMoney(idx, diff) {
+        if (idx < 2) {
+            // 元角换算
+            const yuan = randInt(1,5);
+            const answer = yuan * 10;
+            return { type:'addition', text:`${yuan}元等于多少角？`, math:`${yuan}元 = ?角`, a:yuan, b:10, answer, operator:'×', visualType:'addition', visualItems:['💰'], options:genOptions(answer, 50) };
+        } else if (idx < 4) {
+            // 角分换算
+            const jiao = randInt(1,5);
+            const answer = jiao * 10;
+            return { type:'addition', text:`${jiao}角等于多少分？`, math:`${jiao}角 = ?分`, a:jiao, b:10, answer, operator:'×', visualType:'addition', visualItems:['🪙'], options:genOptions(answer, 50) };
+        } else if (idx < 6) {
+            // 简单购物加法
+            const a = randInt(1,8), b = randInt(1, Math.min(8, 10-a));
+            const answer = a + b;
+            return { type:'addition', text:`艾莎买了一块冰砖${a}元，又买了一杯热可可${b}元，一共花了多少元？`, math:`${a} + ${b} = ?元`, a, b, answer, operator:'+', visualType:'addition', visualItems:['💰','🪙'], options:genOptions(answer, 20) };
+        } else {
+            // 找钱
+            const price = randInt(2,8), pay = randInt(price+1, 10);
+            const answer = pay - price;
+            return { type:'subtraction', text:`冰雕${price}元，艾莎付了${pay}元，应找回多少元？`, math:`${pay} - ${price} = ?元`, a:pay, b:price, answer, operator:'-', visualType:'subtraction', visualItems:['💰'], options:genOptions(answer, 10) };
+        }
+    }
+
+    // --- 100以内加减法 ---
+    function genAddSub100(idx, diff) {
+        const subType = idx % 6;
+        let a, b, answer;
+        if (subType === 0) {
+            // 整十数加整十数
+            a = randInt(1,4)*10; b = randInt(1, Math.floor((100-a)/10))*10;
+            if (b === 0) b = 10;
+            answer = a+b;
+            return { type:'addition', text:`${a}块冰砖加上${b}块，一共几块？`, math:`${a} + ${b} = ?`, a, b, answer, operator:'+', visualType:'addition', visualItems:getVisualItems('addition'), options:genOptions(answer,100) };
+        } else if (subType === 1) {
+            // 整十数减整十数
+            a = randInt(2,9)*10; b = randInt(1, a/10-1)*10;
+            if (b === 0) b = 10;
+            answer = a-b;
+            return { type:'subtraction', text:`艾莎有${a}颗冰钻，用了${b}颗，还剩几颗？`, math:`${a} - ${b} = ?`, a, b, answer, operator:'-', visualType:'subtraction', visualItems:getVisualItems('subtraction'), options:genOptions(answer,100) };
+        } else if (subType === 2) {
+            // 两位数加整十数
+            a = randInt(11,69); b = randInt(1, Math.floor((99-a)/10))*10;
+            if (b === 0) b = 10;
+            answer = a+b;
+            return { type:'addition', text:`城堡有${a}扇窗，又建了${b}扇，现在有几扇？`, math:`${a} + ${b} = ?`, a, b, answer, operator:'+', visualType:'addition', visualItems:getVisualItems('addition'), options:genOptions(answer,100) };
+        } else if (subType === 3) {
+            // 两位数减整十数
+            a = randInt(30,99); b = randInt(1, Math.floor(a/10)-1)*10;
+            if (b === 0) b = 10;
+            answer = a-b;
+            return { type:'subtraction', text:`有${a}个雪球，扔了${b}个，还剩几个？`, math:`${a} - ${b} = ?`, a, b, answer, operator:'-', visualType:'subtraction', visualItems:getVisualItems('subtraction'), options:genOptions(answer,100) };
+        } else if (subType === 4) {
+            // 两位数加一位数（可能进位）
+            a = randInt(20,89); b = randInt(2, Math.min(9, 99-a));
+            answer = a+b;
+            return { type:'addition', text:`艾莎收集了${a}片雪花，又找到${b}片，一共几片？`, math:`${a} + ${b} = ?`, a, b, answer, operator:'+', visualType:'addition', visualItems:getVisualItems('addition'), options:genOptions(answer,100) };
+        } else {
+            // 两位数减一位数（可能退位）
+            a = randInt(20,99); b = randInt(2, Math.min(9, a-1));
+            answer = a-b;
+            return { type:'subtraction', text:`有${a}个冰晶，融化了${b}个，还剩几个？`, math:`${a} - ${b} = ?`, a, b, answer, operator:'-', visualType:'subtraction', visualItems:getVisualItems('subtraction'), options:genOptions(answer,100) };
+        }
+    }
+
+    // --- 找规律 ---
+    function genPattern(idx, diff) {
+        if (idx % 2 === 0) {
+            // 数字规律
+            const patterns = [
+                () => { const s=randInt(1,5), d=randInt(2,3); return [s, s+d, s+2*d, s+3*d, s+4*d]; },
+                () => { const s=randInt(2,10); return [s, s+2, s+4, s+6, s+8]; },
+                () => { const s=randInt(10,30); return [s, s+10, s+20, s+30, s+40]; }
+            ];
+            const gen = patterns[Math.min(diff, patterns.length-1)];
+            const seq = gen();
+            const blankPos = randInt(2,4);
+            const answer = seq[blankPos];
+            const display = seq.map((n,i) => i===blankPos ? '?' : n);
+            return { type:'pattern', text:'找出规律，?处应该填什么？', math:display.join(' , '), patternSeq:seq, patternBlank:blankPos, answer, isPattern:true, options:genOptions(answer, Math.max(answer+10, 50)) };
+        } else {
+            // 图形规律
+            const shapes = ['❄️','💎','⭐'];
+            const repeat = shapes.slice(0, randInt(2,3));
+            const seq = [];
+            for (let i = 0; i < 8; i++) seq.push(repeat[i % repeat.length]);
+            const blankPos = randInt(4,7);
+            const answer = seq[blankPos];
+            const display = seq.map((s,i) => i===blankPos ? '❓' : s);
+            return { type:'patternShape', text:'找出图形规律，❓处应该放什么？', math:display.join(' '), patternSeq:seq, patternBlank:blankPos, answer, isPatternShape:true, shapeOptions:shuffleArray([...new Set(shapes)]) };
+        }
+    }
+
+    function genOptions(answer, maxNum) {
+        const opts = new Set(); opts.add(answer);
+        const range = Math.max(3, Math.floor(maxNum/10));
+        let att = 0;
+        while (opts.size < 4 && att < 50) { let off = randInt(1,range); if (Math.random()>0.5) off=-off; let o=answer+off; if (o>=0 && o<=maxNum+5 && o!==answer) opts.add(o); att++; }
+        // 确保有4个不重复选项
+        let fallback = 0;
+        while (opts.size < 4) { fallback++; if (!opts.has(fallback)) opts.add(fallback); }
+        return shuffleArray([...opts]);
+    }
+
+    function getVisualItems(type) { return VISUAL_ITEMS[type] || VISUAL_ITEMS.default; }
+
+    // ===== 渲染题目 =====
+    function renderQuestion() {
+        const q = gameState.questions[gameState.currentQuestion];
+        gameState.answered = false;
+
+        document.getElementById('scoreDisplay').textContent = gameState.score;
+        document.getElementById('questionProgress').textContent = `${gameState.currentQuestion+1}/${gameState.totalQuestions}`;
+        document.getElementById('gameProgressBar').style.width = `${(gameState.currentQuestion/gameState.totalQuestions)*100}%`;
+        renderHearts();
+
+        const elsaEmojis = ['👸','👸❄️','👸✨','👸💎'];
+        document.getElementById('questionElsa').textContent = elsaEmojis[randInt(0,3)];
+        document.getElementById('questionText').textContent = q.text;
+
+        // 数学表达式
+        const mathEl = document.getElementById('questionMath');
+        if (q.isCompare || q.isCompareMore) {
+            mathEl.innerHTML = `<span>${q.a}</span> <span class="blank"></span> <span>${q.b}</span>`;
+        } else if (q.isPattern || q.isPatternShape) {
+            mathEl.innerHTML = q.math;
+        } else if (q.isShape || q.isShapeCount) {
+            mathEl.innerHTML = `<span style="font-size:50px;letter-spacing:8px">${q.math}</span>`;
+        } else if (q.isClassify) {
+            mathEl.innerHTML = `<span style="font-size:30px;letter-spacing:4px">${q.math}</span>`;
+        } else {
+            const parts = q.math.split(/([+\-=?×])/);
+            mathEl.innerHTML = parts.map(p => {
+                if (p==='+') return '<span class="operator"> + </span>';
+                if (p==='-') return '<span class="operator"> - </span>';
+                if (p==='?') return '<span class="blank"></span>';
+                if (p==='=') return '<span class="operator"> = </span>';
+                if (p==='×') return '<span class="operator"> × </span>';
+                return `<span>${p}</span>`;
+            }).join('');
+        }
+
+        renderVisual(q);
+        renderOptions(q);
+        document.getElementById('feedbackArea').innerHTML = '';
+    }
+
+    function renderVisual(q) {
+        const area = document.getElementById('visualArea');
+        area.innerHTML = '';
+
+        if (q.type === 'addition' || q.type === 'makeTen') {
+            const left = document.createElement('div'); left.className = 'visual-group visual-group-left';
+            for (let i=0; i<Math.min(q.a,15); i++) { const s = document.createElement('span'); s.className='visual-item'; s.textContent=q.visualItems[i%q.visualItems.length]; s.style.animationDelay=`${i*0.05}s`; left.appendChild(s); }
+            area.appendChild(left);
+            const op = document.createElement('span'); op.className='visual-operator'; op.textContent='+'; area.appendChild(op);
+            const right = document.createElement('div'); right.className='visual-group visual-group-right';
+            for (let i=0; i<Math.min(q.b,15); i++) { const s = document.createElement('span'); s.className='visual-item'; s.textContent=q.visualItems[(i+q.a)%q.visualItems.length]; s.style.animationDelay=`${i*0.05}s`; right.appendChild(s); }
+            area.appendChild(right);
+        } else if (q.type === 'subtraction') {
+            const group = document.createElement('div'); group.className='visual-group visual-group-left';
+            for (let i=0; i<Math.min(q.a,15); i++) { const s = document.createElement('span'); s.className='visual-item'+(i>=q.a-Math.min(q.b,15)?' crossed':''); s.textContent=q.visualItems[i%q.visualItems.length]; s.style.animationDelay=`${i*0.05}s`; group.appendChild(s); }
+            area.appendChild(group);
+        } else if (q.type === 'compare') {
+            const left = document.createElement('div'); left.className='visual-group visual-group-left';
+            for (let i=0; i<Math.min(q.a,10); i++) { const s = document.createElement('span'); s.className='visual-item'; s.textContent=q.visualItems[i%q.visualItems.length]; left.appendChild(s); }
+            if (q.a>10) { const m = document.createElement('span'); m.className='visual-item'; m.textContent=`...${q.a}`; m.style.fontSize='14px'; left.appendChild(m); }
+            area.appendChild(left);
+            const vs = document.createElement('span'); vs.className='visual-operator'; vs.textContent='VS'; area.appendChild(vs);
+            const right = document.createElement('div'); right.className='visual-group visual-group-right';
+            for (let i=0; i<Math.min(q.b,10); i++) { const s = document.createElement('span'); s.className='visual-item'; s.textContent=q.visualItems[(i+3)%q.visualItems.length]; right.appendChild(s); }
+            if (q.b>10) { const m = document.createElement('span'); m.className='visual-item'; m.textContent=`...${q.b}`; m.style.fontSize='14px'; right.appendChild(m); }
+            area.appendChild(right);
+        }
+
+        // 数字线（不预高亮，答对后逐步高亮）
+        if ((q.type === 'addition' || q.type === 'subtraction') && q.a <= 20 && q.answer >= 0 && q.answer <= 20) {
+            const nl = document.createElement('div'); nl.className='number-line'; nl.id='numberLine';
+            const maxLine = Math.max(q.a, q.b, q.answer) + 2;
+            for (let i=0; i<=Math.min(maxLine,20); i++) {
+                const item = document.createElement('div'); item.className='number-line-item'; item.textContent=i; item.dataset.num=i;
+                nl.appendChild(item);
+            }
+            area.appendChild(nl);
+        }
+    }
+
+    function renderOptions(q) {
+        const optArea = document.getElementById('optionsArea');
+        const cmpArea = document.getElementById('compareBtns');
+        optArea.style.display='none'; cmpArea.style.display='none';
+
+        if (q.isCompare) {
+            cmpArea.style.display='flex';
+            cmpArea.innerHTML = `
+                <button class="compare-btn" onclick="checkCompare('<',this)">&lt;</button>
+                <button class="compare-btn" onclick="checkCompare('=',this)">=</button>
+                <button class="compare-btn" onclick="checkCompare('>',this)">&gt;</button>
+            `;
+        } else if (q.isCompareMore || q.isShape || q.isPatternShape) {
+            // 字符串答案类型：统一用 checkAnswerStr
+            optArea.style.display='grid';
+            const opts = q.isPatternShape ? q.shapeOptions : q.options;
+            optArea.innerHTML = opts.map((o,i) => `<button class="option-btn" onclick="checkAnswerStr('${o}',this)" style="font-size:${q.isPatternShape?'32px':''}">${o}</button>`).join('');
+        } else {
+            // 数字答案类型
+            optArea.style.display='grid';
+            optArea.innerHTML = q.options.map((o,i) => `<button class="option-btn" onclick="checkAnswer(${o},this)">${o}</button>`).join('');
+        }
+    }
+
+    function renderHearts() {
+        const c = document.getElementById('heartsDisplay'); c.innerHTML='';
+        for (let i=0; i<gameState.maxHearts; i++) { const h = document.createElement('span'); h.className='heart'+(i>=gameState.hearts?' lost':''); h.textContent='❤️'; c.appendChild(h); }
+    }
+
+    // ===== 检查答案 =====
+    function checkAnswer(selected, btn) {
+        if (gameState.answered) return;
+        gameState.answered = true;
+        sfxClick();
+        const q = gameState.questions[gameState.currentQuestion];
+        const isCorrect = selected === q.answer;
+        document.querySelectorAll('.option-btn').forEach(b => b.classList.add('disabled'));
+        if (isCorrect) { btn.classList.add('correct'); handleCorrect(q); } else { btn.classList.add('wrong'); document.querySelectorAll('.option-btn').forEach(b => { if (parseFloat(b.textContent)===q.answer) b.classList.add('correct'); }); handleWrong(q); }
+        const delay = isCorrect && (q.type==='addition'||q.type==='subtraction') && q.a<=20 && q.answer<=20 ? 3500 : 1800;
+        setTimeout(() => nextQuestion(), delay);
+    }
+
+    function checkAnswerStr(selected, btn) {
+        if (gameState.answered) return;
+        gameState.answered = true;
+        sfxClick();
+        const q = gameState.questions[gameState.currentQuestion];
+        const isCorrect = selected === q.answer;
+        document.querySelectorAll('.option-btn').forEach(b => b.classList.add('disabled'));
+        if (isCorrect) { btn.classList.add('correct'); handleCorrect(q); } else {
+            btn.classList.add('wrong');
+            // 高亮正确答案
+            document.querySelectorAll('.option-btn').forEach(b => { if (b.textContent.trim() === String(q.answer)) b.classList.add('correct'); });
+            handleWrong(q);
+        }
+        setTimeout(() => nextQuestion(), 1800);
+    }
+
+    function checkCompare(selected, btn) {
+        if (gameState.answered) return;
+        gameState.answered = true;
+        sfxClick();
+        const q = gameState.questions[gameState.currentQuestion];
+        const isCorrect = selected === q.answer;
+        document.querySelectorAll('.compare-btn').forEach(b => b.classList.add('disabled'));
+        if (isCorrect) { btn.classList.add('correct'); handleCorrect(q); } else { btn.classList.add('wrong'); document.querySelectorAll('.compare-btn').forEach(b => { if (b.textContent.trim()===q.answer) b.classList.add('correct'); }); handleWrong(q); }
+        setTimeout(() => nextQuestion(), 1800);
+    }
+
+    function handleCorrect(q) {
+        gameState.correctCount++; gameState.combo++;
+        if (gameState.combo > gameState.maxCombo) gameState.maxCombo = gameState.combo;
+        const bonus = Math.min(gameState.combo-1, 5)*5;
+        gameState.score += 10 + bonus;
+        document.getElementById('scoreDisplay').textContent = gameState.score;
+
+        sfxCorrect();
+        if (gameState.combo >= 3) { sfxCombo(); showCombo(gameState.combo); }
+
+        const enc = ENCOURAGES.correct[randInt(0,ENCOURAGES.correct.length-1)];
+        document.getElementById('feedbackArea').innerHTML = `<div class="feedback-correct">✨ ${enc}</div>${bonus>0?`<div class="feedback-encourage">连击奖励 +${bonus}分！</div>`:''}`;
+
+        createMagicEffect();
+
+        // 逐步高亮数字线 + 语音播报
+        if ((q.type==='addition'||q.type==='subtraction') && q.a<=20 && q.answer>=0 && q.answer<=20) {
+            animateNumberLine(q);
+        } else {
+            // 非数字线题型也语音播报
+            speakResult(q);
+        }
+    }
+
+    function animateNumberLine(q) {
+        const nl = document.getElementById('numberLine');
+        if (!nl) return;
+
+        const items = nl.querySelectorAll('.number-line-item');
+        const a = q.a, answer = q.answer, op = q.operator;
+
+        // 语音：先说完整算式
+        const opText = op==='+' ? '加' : '减';
+        speak(`${a} ${opText} ${Math.abs(answer-a)} 等于 ${answer}`);
+
+        // 高亮起始数
+        setTimeout(() => {
+            items.forEach(item => { if (parseInt(item.dataset.num)===a) item.classList.add('start-highlight'); });
+        }, 300);
+
+        // 逐步高亮到答案
+        const step = op==='+' ? 1 : -1;
+        const count = Math.abs(answer - a);
+        for (let i=1; i<=count; i++) {
+            const num = a + step*i;
+            setTimeout(() => {
+                items.forEach(item => {
+                    if (parseInt(item.dataset.num)===num) {
+                        item.classList.add('step-highlight');
+                        playTone(400 + num*20, 0.1, 'sine', 0.05); // 每步一个小音
+                    }
+                });
+            }, 300 + i*400);
+        }
+
+        // 最终高亮答案
+        setTimeout(() => {
+            items.forEach(item => {
+                if (parseInt(item.dataset.num)===answer) {
+                    item.classList.remove('step-highlight');
+                    item.classList.add('end-highlight');
+                }
+            });
+        }, 300 + (count+1)*400);
+    }
+
+    function speakResult(q) {
+        if (q.type==='addition') speak(`${q.a} 加 ${q.b} 等于 ${q.answer}`);
+        else if (q.type==='subtraction') speak(`${q.a} 减 ${q.b} 等于 ${q.answer}`);
+        else if (q.isCompare) speak(`${q.a} ${q.answer==='>'?'大于':q.answer==='<'?'小于':'等于'} ${q.b}`);
+    }
+
+    function handleWrong(q) {
+        gameState.combo = 0; gameState.hearts--;
+        sfxWrong();
+        const hearts = document.querySelectorAll('.heart:not(.lost)');
+        if (hearts.length>0) { const last=hearts[hearts.length-1]; last.classList.add('breaking'); setTimeout(()=>{last.classList.add('lost');last.classList.remove('breaking');},500); }
+        const enc = ENCOURAGES.wrong[randInt(0,ENCOURAGES.wrong.length-1)];
+        document.getElementById('feedbackArea').innerHTML = `<div class="feedback-wrong">答案是 ${q.answer}，${enc}</div>`;
+    }
+
+    function nextQuestion() {
+        if (gameState.hearts<=0 || gameState.currentQuestion>=gameState.totalQuestions-1) {
+            if (gameState.hearts>0) gameState.currentQuestion++;
+            showResult(); return;
+        }
+        gameState.currentQuestion++; renderQuestion();
+    }
+
+    // ===== 结算 =====
+    function showResult() {
+        showScreen('resultScreen');
+        const level = ALL_LEVELS[gameState.currentLevel];
+        const accuracy = Math.round((gameState.correctCount/gameState.totalQuestions)*100);
+        let stars = 0;
+        if (accuracy>=30) stars=1; if (accuracy>=70) stars=2; if (accuracy>=90) stars=3;
+
+        const prevStars = level.stars;
+        if (stars>level.stars) level.stars=stars;
+
+        // 解锁下一关
+        let newUnlocked = false;
+        if (stars>=1 && gameState.currentLevel<ALL_LEVELS.length-1 && !ALL_LEVELS[gameState.currentLevel+1].unlocked) {
+            ALL_LEVELS[gameState.currentLevel+1].unlocked=true; newUnlocked=true;
+        }
+        saveProgress();
+
+        const elsaEmoji = stars>=3?'👸✨':stars>=2?'👸❄️':'👸';
+        document.getElementById('resultElsa').textContent=elsaEmoji;
+        const titles = {3:'冰雪数学大师！',2:'魔法学徒出师了！',1:'继续努力哦！',0:'别灰心，再来一次！'};
+        document.getElementById('resultTitle').textContent=titles[stars];
+        const subs = {3:`${gameState.playerName}，艾莎为你感到无比骄傲！`,2:`${gameState.playerName}，你越来越厉害了！`,1:`${gameState.playerName}，多练习就能更棒！`,0:`${gameState.playerName}，艾莎相信你下次一定行！`};
+        document.getElementById('resultSubtitle').textContent=subs[stars];
+
+        document.getElementById('resultStars').innerHTML = [1,2,3].map(s=>`<span style="color:${s<=stars?'#ffd700':'#555'};text-shadow:${s<=stars?'0 0 15px rgba(255,215,0,0.5)':'none'}">★</span>`).join('');
+
+        document.getElementById('resultStats').innerHTML = `
+            <div class="stat-item"><div class="stat-value">${gameState.score}</div><div class="stat-label">总分数</div></div>
+            <div class="stat-item"><div class="stat-value">${accuracy}%</div><div class="stat-label">正确率</div></div>
+            <div class="stat-item"><div class="stat-value">${gameState.correctCount}/${gameState.totalQuestions}</div><div class="stat-label">答对题数</div></div>
+            <div class="stat-item"><div class="stat-value">${gameState.maxCombo}</div><div class="stat-label">最大连击</div></div>
+        `;
+
+        // 星星音效
+        if (stars>0) setTimeout(()=>sfxStar(), 300);
+        if (newUnlocked) setTimeout(()=>sfxUnlock(), 800);
+
+        // 成就
+        if (gameState.maxCombo>=5) showAchievement('🔥','连击大师',`连续答对${gameState.maxCombo}题！`);
+        if (accuracy===100) showAchievement('👑','完美通关','全部答对，太厉害了！');
+
+        // 最后一关通关奖励：播放艾莎音乐
+        if (gameState.currentLevel === ALL_LEVELS.length-1 && stars>=1) {
+            setTimeout(() => {
+                showAchievement('👸','冰雪女王加冕','你完成了所有关卡！艾莎为你演奏！');
+                document.getElementById('musicPlayer').style.display='block';
+                playElsaMusic();
+            }, 1500);
+        }
+
+        // 每章最后一关也播放音乐片段
+        const chapterLevels = ALL_LEVELS.filter(l=>l.chapterId===level.chapterId);
+        if (chapterLevels[chapterLevels.length-1].id===level.id && stars>=2) {
+            setTimeout(() => {
+                showAchievement(level.icon,`${level.chapterName}通关！`,`章节完成，艾莎为你鼓掌！`);
+                sfxVictory();
+            }, 1200);
+        }
+    }
+
+    function replayLevel() { sfxClick(); startLevel(gameState.currentLevel); }
+
+    // ===== 特效 =====
+    function createMagicEffect() {
+        const sparkles=['✨','❄️','💎','⭐','✦'];
+        const area=document.getElementById('questionArea'); const rect=area.getBoundingClientRect();
+        for (let i=0;i<6;i++) {
+            const s=document.createElement('div'); s.className='sparkle'; s.textContent=sparkles[randInt(0,4)];
+            s.style.position='fixed'; s.style.left=(rect.left+Math.random()*rect.width)+'px';
+            s.style.top=(rect.top+Math.random()*rect.height)+'px'; s.style.animationDelay=(Math.random()*0.3)+'s';
+            s.style.zIndex='100'; s.style.pointerEvents='none'; document.body.appendChild(s);
+            setTimeout(()=>s.remove(),1200);
+        }
+    }
+
+    function showCombo(count) {
+        const c=document.createElement('div'); c.className='combo-display'; c.textContent=`${count}连击！🔥`;
+        document.body.appendChild(c); setTimeout(()=>c.remove(),1200);
+    }
+
+    function showAchievement(icon,name,desc) {
+        const p=document.createElement('div'); p.className='achievement-popup';
+        p.innerHTML=`<span class="achievement-icon">${icon}</span><div class="achievement-text"><div class="achievement-name">${name}</div><div>${desc}</div></div>`;
+        document.body.appendChild(p); setTimeout(()=>p.remove(),3000);
+    }
+
+    // ===== 存档弹窗 =====
+    function showSaveModal() {
+        sfxClick();
+        const code = exportSave();
+        const overlay = document.createElement('div');
+        overlay.className = 'save-modal-overlay';
+        overlay.id = 'saveModalOverlay';
+        overlay.innerHTML = `
+            <div class="save-modal">
+                <h3>💾 冰雪存档管理</h3>
+                <p>代码更新后进度不会丢失！<br>还可以导出存档码保存到备忘录，换设备也能恢复。</p>
+                <textarea class="save-code-area" id="saveCodeArea" placeholder="导出的存档码会显示在这里，也可以在这里粘贴存档码来导入">${code}</textarea>
+                <div class="save-status" id="saveStatus"></div>
+                <div class="save-modal-btns">
+                    <button class="save-modal-btn primary" onclick="copySaveCode()">📋 复制存档码</button>
+                    <button class="save-modal-btn" onclick="doImportSave()">📥 导入存档</button>
+                    <button class="save-modal-btn" onclick="closeSaveModal()">关闭</button>
+                </div>
+            </div>
+        `;
+        overlay.onclick = (e) => { if (e.target === overlay) closeSaveModal(); };
+        document.body.appendChild(overlay);
+    }
+
+    function closeSaveModal() {
+        const m = document.getElementById('saveModalOverlay');
+        if (m) m.remove();
+    }
+
+    function copySaveCode() {
+        sfxClick();
+        const area = document.getElementById('saveCodeArea');
+        if (!area) return;
+        area.select();
+        try {
+            document.execCommand('copy');
+            document.getElementById('saveStatus').className = 'save-status success';
+            document.getElementById('saveStatus').textContent = '✅ 已复制到剪贴板！保存到备忘录即可';
+        } catch(e) {
+            // fallback: 提示手动复制
+            document.getElementById('saveStatus').className = 'save-status';
+            document.getElementById('saveStatus').textContent = '请手动全选复制上面的存档码';
+        }
+    }
+
+    function doImportSave() {
+        sfxClick();
+        const area = document.getElementById('saveCodeArea');
+        if (!area) return;
+        const code = area.value.trim();
+        if (!code) {
+            document.getElementById('saveStatus').className = 'save-status error';
+            document.getElementById('saveStatus').textContent = '请先粘贴存档码';
+            return;
+        }
+        const success = importSave(code);
+        if (success) {
+            document.getElementById('saveStatus').className = 'save-status success';
+            document.getElementById('saveStatus').textContent = '✅ 导入成功！进度已恢复';
+            sfxStar();
+            // 刷新关卡显示
+            setTimeout(() => { closeSaveModal(); renderLevels(); }, 1500);
+        } else {
+            document.getElementById('saveStatus').className = 'save-status error';
+            document.getElementById('saveStatus').textContent = '❌ 存档码无效，请检查是否完整复制';
+        }
+    }
+
+    // ===== 工具 =====
+    function randInt(min,max) { return Math.floor(Math.random()*(max-min+1))+min; }
+    function shuffleArray(arr) { const a=[...arr]; for (let i=a.length-1;i>0;i--) { const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+
+    init();
+    </script>
+</body>
+</html>
